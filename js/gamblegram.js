@@ -148,19 +148,24 @@ function renderGamblegram(vals) {
    * CSS to ~66vh — use that available height for the internal
    * chart height so the bars actually fill the visible canvas while
    * keeping the legend outside the 2/3 viewport requirement.
-   */
-    let padTop = Math.max(12, Math.round(W * 0.04)); // reduced on mobile
+  */
+  // Compute top padding and chart height. When the surrounding `.gg-canvas`
+  // provides a clientHeight (tall canvas on desktop), scale the top padding
+  // with that height so the top labels/title area has enough room and
+  // doesn't overlap the stacked bars. For small screens keep a sensible
+  // minimum padding.
   let H;
   const canvasEl = svg.closest('.gg-canvas');
-    // Prefer the canvas's available height when present (so desktop tall canvases are filled).
-    // Fall back to the previous width-derived calculation when canvas height is not available.
-    if (canvasEl && canvasEl.clientHeight) {
-    // Give the chart the bulk of the canvas height but leave room
-    // for small padding / title area. Clamp to sensible min/max.
+  let padTop;
+  if (canvasEl && canvasEl.clientHeight) {
+    // padTop is the smaller of a width-based fraction and a fraction of
+    // the canvas height, clamped to a minimum. This gives more room on
+    // tall desktops while remaining compact on narrow viewports.
+    padTop = Math.max(12, Math.round(Math.min(W * 0.06, canvasEl.clientHeight * 0.08)));
     const available = Math.max(180, canvasEl.clientHeight - 28);
     H = Math.max(140, Math.round(available - padTop - 12));
-    // Slightly reduce the top padding on small screens to prioritise chart height
   } else {
+    padTop = Math.max(12, Math.round(W * 0.04));
     H = Math.round(W * 0.86);
   }
 
