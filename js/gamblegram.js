@@ -96,19 +96,28 @@ function renderGamblegram(vals) {
     }
   };
 
-  /* ── Build cation / anion stacks ── */
+  /* ── Read palette colors from CSS variables (allows dark/light palettes) ―─ */
+  const cssColor = (key, fallback) => {
+    const map = { "A-": "Aminus", "Pi-": "Pi", "Lactate": "Lactate", "HCO3": "HCO3", "iCa": "iCa", "Mg": "Mg" };
+    const name = map[key] || key;
+    const varName = "--gg-" + name;
+    const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    return v || fallback;
+  };
+
+  /* ── Build cation / anion stacks (colors read from CSS variables) ── */
   let cations = [
-    { k: "Na",  v: Na,      c: "#BFE7FF" },
-    { k: "K",   v: K,       c: "#FFE9C9" },
-    { k: "iCa", v: iCa,     c: "#DFF7ED" },
-    { k: "Mg",  v: Mg_mmol, c: "#E8E9FF" },
+    { k: "Na",  v: Na,      c: cssColor("Na",  "#BFE7FF") },
+    { k: "K",   v: K,       c: cssColor("K",   "#FFE9C9") },
+    { k: "iCa", v: iCa,     c: cssColor("iCa", "#DFF7ED") },
+    { k: "Mg",  v: Mg_mmol, c: cssColor("Mg",  "#E8E9FF") },
   ];
   let anions = [
-    { k: "Cl",      v: Cl,       c: "#FFD8DA" },
-    { k: "Lactate", v: Lac,      c: "#FFF6D6" },
-    { k: "HCO3",    v: HCO3,     c: "#E9FFEA" },
-    { k: "A-",      v: albMinus, c: "#F0EAFF" },
-    { k: "Pi-",     v: piMinus,  c: "#FFF9DE" },
+    { k: "Cl",      v: Cl,       c: cssColor("Cl",      "#FFD8DA") },
+    { k: "Lactate", v: Lac,      c: cssColor("Lactate", "#FFF6D6") },
+    { k: "HCO3",    v: HCO3,     c: cssColor("HCO3",    "#E9FFEA") },
+    { k: "A-",      v: albMinus, c: cssColor("A-",      "#F0EAFF") },
+    { k: "Pi-",     v: piMinus,  c: cssColor("Pi-",     "#FFF9DE") },
   ];
 
   // SIG → "Unknown" segment at the top of the shorter column
@@ -239,22 +248,62 @@ function renderGamblegram(vals) {
     it.v.toFixed(2) + " mEq/L</span></div>"
   ).join("");
 
-  /* ── Wire up tooltip events ── */
+  /* ── Wire up tooltip / selection events (pointer + keyboard + touch) ── */
   const tooltip = document.getElementById("gg-tooltip");
   if (tooltip) {
+    // helpers to mark/unmark the active rect and to clear focused state
+    const setActiveRect = (r) => {
+      svg.classList.add("focused");
+      svg.querySelectorAll("rect.gg-rect.active").forEach((x) => x.classList.remove("active"));
+      r.classList.add("active");
+    };
+    const clearActive = () => {
+      svg.classList.remove("focused");
+      svg.querySelectorAll("rect.gg-rect.active").forEach((x) => x.classList.remove("active"));
+    };
+
     svg.querySelectorAll("rect.gg-rect").forEach((rect) => {
-      rect.addEventListener("mouseenter", (e) => showTT(rect, e.clientX, e.clientY));
-      rect.addEventListener("mousemove",  (e) => showTT(rect, e.clientX, e.clientY));
-      rect.addEventListener("mouseleave", hideTT);
-      rect.addEventListener("focus", () => {
+      // pointerenter / pointermove work for mouse & touch (where supported)
+      rect.addEventListener("pointerenter", (e) => {
+        setActiveRect(rect);
+        showTT(rect, e.clientX, e.clientY);
+      });
+      rect.addEventListener("pointermove", (e) => showTT(rect, e.clientX, e.clientY));
+
+      // on leaving with a mouse pointer, hide + clear selection
+      rect.addEventListener("pointerleave", (e) => {
+        hideTT();
+        if (e.pointerType === "mouse" || e.pointerType === "pen") clearActive();
+      });
+
+      // keyboard focus should also select the segment
+      rect.addEventListener("focus", (e) => {
+        setActiveRect(rect);
         const b = rect.getBoundingClientRect();
         showTT(rect, b.left + 8, b.top);
       });
-      rect.addEventListener("blur", hideTT);
-      rect.addEventListener("touchstart", (e) => {
-        showTT(rect, e.touches[0].clientX, e.touches[0].clientY);
+      rect.addEventListener("blur", () => { hideTT(); clearActive(); });
+
+      // pointerdown handles taps and clicks — toggle selection on repeated taps
+      rect.addEventListener("pointerdown", (e) => {
+        if (rect.classList.contains("active")) {
+          hideTT();
+          clearActive();
+        } else {
+          setActiveRect(rect);
+          showTT(rect, e.clientX, e.clientY);
+        }
         e.preventDefault();
       });
+    });
+
+    // clicking / tapping outside the SVG clears any active selection
+    document.addEventListener("pointerdown", (ev) => {
+      if (!svg.contains(ev.target)) {
+        hideTT();
+        svg.classList.remove("focused");
+        svg.querySelectorAll("rect.gg-rect.active").forEach((x) => x.classList.remove("active"));
+      }
     });
   }
 

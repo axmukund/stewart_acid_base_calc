@@ -13,6 +13,21 @@
   --accent: #60a5fa; --card: #0b1220;
   --border: rgba(255,255,255,0.06); --glass: rgba(255,255,255,0.03);
   --input-border: rgba(255,255,255,0.08); --tooltip-bg: rgba(2,6,23,0.92);
+
+  /* Gamblegram palette — dark mode (default) */
+  /* Cations (cool family) */
+  --gg-Na:    #9ad7ff; /* Na⁺ */
+  --gg-K:     #6fbcff; /* K⁺ */
+  --gg-iCa:   #73f0c8; /* iCa²⁺ */
+  --gg-Mg:    #cfcfff; /* Mg²⁺ */
+  /* Anions (warm/pastel family) */
+  --gg-Cl:     #ffb1b8; /* Cl⁻ */
+  --gg-Lactate:#fff2b8; /* Lactate⁻ */
+  --gg-HCO3:   #e6ffe8; /* HCO₃⁻ */
+  --gg-Aminus: #efe6ff; /* Albumin anionic contribution */
+  --gg-Pi:     #fff9d9; /* Phosphate */
+  /* Unknown (distinct) */
+  --gg-Unknown:#a78bfa; /* Unknown / SIG */
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -249,6 +264,21 @@ body.light {
   --accent: #1d4ed8; --card: #ffffff;
   --border: rgba(2,6,23,0.08); --glass: rgba(0,0,0,0.02);
   --input-border: rgba(0,0,0,0.12); --tooltip-bg: rgba(255,255,255,0.98);
+
+  /* Gamblegram palette — light mode overrides */
+  /* Cations (cool family) */
+  --gg-Na:    #60a5fa; /* Na⁺ */
+  --gg-K:     #3b82f6; /* K⁺ */
+  --gg-iCa:   #10b981; /* iCa²⁺ */
+  --gg-Mg:    #8b5cf6; /* Mg²⁺ */
+  /* Anions (warm/pastel family) */
+  --gg-Cl:     #fb7185; /* Cl⁻ */
+  --gg-Lactate:#fde68a; /* Lactate⁻ */
+  --gg-HCO3:   #bbf7d0; /* HCO₃⁻ */
+  --gg-Aminus: #f5d0fe; /* Albumin anionic contribution */
+  --gg-Pi:     #ffedd5; /* Phosphate */
+  /* Unknown (distinct) */
+  --gg-Unknown:#7c3aed; /* Unknown / SIG */
 }
 body.light .container {
   background: var(--card); color: var(--fg);
