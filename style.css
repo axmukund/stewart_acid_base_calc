@@ -71,6 +71,10 @@ input[type="number"] {
   padding: 6px 8px; border-radius: 6px; color: inherit; text-align: right;
 }
 input[disabled] { background: rgba(255,255,255,0.01); color: var(--muted); cursor: not-allowed; }
+/* slider controls: visible on all viewports (desktop + mobile) */
+.ion-range { display: block; }
+
+
 .ion-label { white-space: nowrap; display: inline-block; font-weight: 600; }
 .ion-label sup, .ion-label sub,
 .gg-legend .item sup, label sup { font-size: .72em; line-height: 1; vertical-align: super; margin-left: 0.05ch; }
@@ -200,6 +204,11 @@ svg rect.gg-rect:hover, svg rect.gg-rect:focus {
   label .ion-label { font-weight: 700; }
   input[type="number"] { width: 100%; }
   .unit-select { margin-left: 0; align-self: flex-start; }
+  /* visible mobile sliders */
+  .ion-range { display: block; width: 100%; margin-top: 8px; height: 28px; -webkit-appearance: none; appearance: none; }
+  .ion-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+  .ion-range:focus { outline: none; }
+
   .results.compact dl { grid-template-columns: 1fr 110px; }
   .results.compact dd { font-size: 15px; }
   .results-actions { justify-content: stretch; }

@@ -724,6 +724,22 @@ document.querySelectorAll("select.unit-select").forEach((sel) => {
   });
 });
 
+// Mobile-friendly range sliders: keep range and numeric inputs in sync
+document.querySelectorAll("input.ion-range").forEach(range => {
+  const id = range.id.replace('-range','');
+  const num = document.getElementById(id);
+  if (!num) return;
+  // initialise the slider from the numeric input
+  if (num.value) range.value = num.value;
+  range.addEventListener('input', (e) => {
+    num.value = e.target.value;
+    // trigger existing input handlers (debounced computeAll will run)
+    num.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  // typing in the numeric field keeps the slider in sync
+  num.addEventListener('input', () => { if (range.value !== String(num.value)) range.value = num.value; });
+});
+
 /* ── BUG FIX: recompute on window resize so the SVG re-measures
    its container width and redraws at the correct proportions. ── */
 let _resizeTimer;
