@@ -157,7 +157,7 @@ select.unit-select option { color: inherit; }
   border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);
 }
 .gamblegram h2 { margin: 0 0 8px; color: var(--accent); }
-.gg-canvas { display: flex; justify-content: center; align-items: flex-start; height: 66vh; max-height: 66vh; }
+.gg-canvas { display: flex; justify-content: center; align-items: flex-start; }
 svg#gg-svg { width: 100%; height: auto; display: block; transition: opacity 240ms ease; touch-action: none; }
 svg text.gg-val { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
 svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
@@ -252,6 +252,7 @@ body.light svg.focused rect.gg-rect:not(.active) {
   h1 { font-size: 20px; }
   label { font-size: 16px; }
   label .ion-label { font-weight: 700; }
+  .gg-canvas { height: 66vh; max-height: 66vh; }
   input[type="number"] { width: 100%; font-size: 16px; }
   .unit-select { margin-left: 0; align-self: flex-start; font-size: 14px; }
   /* visible mobile pickers */
