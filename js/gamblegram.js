@@ -96,7 +96,10 @@ function renderGamblegram(vals) {
     }
   };
 
-  /* ── Read palette colors from CSS variables (allows dark/light palettes) ―─ */
+  /* ── Read palette colors from CSS custom properties ──
+   *    CSS vars are named --gg-Na, --gg-Cl, --gg-Aminus, etc.
+   *    The `map` aliases JS ion keys to their CSS var suffixes
+   *    (e.g. "Alb" → "Aminus", "Phos" → "Pi").                     */
   const cssColor = (key, fallback) => {
     const map = { "Alb": "Aminus", "Phos": "Pi", "Lactate": "Lactate", "HCO3": "HCO3", "iCa": "iCa", "Mg": "Mg" };
     const name = map[key] || key;
