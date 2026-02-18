@@ -15,17 +15,17 @@
   --input-border: rgba(255,255,255,0.08); --tooltip-bg: rgba(2,6,23,0.92);
 
   /* Gamblegram palette — dark mode (default) */
-  /* Cations (cool family) */
-  --gg-Na:    #2DB7FF; /* Na⁺ */
-  --gg-K:     #17BEBB; /* K⁺ */
-  --gg-iCa:   #2ECC71; /* iCa²⁺ */
-  --gg-Mg:    #9B59B6; /* Mg²⁺ */
-  /* Anions (warm/pastel family) */
-  --gg-Cl:     #FF6B6B; /* Cl⁻ */
-  --gg-Lactate:#FF9F1C; /* Lactate⁻ */
-  --gg-HCO3:   #FFE66D; /* HCO₃⁻ */
-  --gg-Aminus: #FFB6C1; /* Albumin anionic contribution */
-  --gg-Pi:     #FFDAB9; /* Phosphate */
+  /* Cations (color‑blind friendly set) */
+  --gg-Na:    #0052CC; /* Na⁺ */
+  --gg-K:     #009E73; /* K⁺ */
+  --gg-iCa:   #CC79A7; /* iCa²⁺ */
+  --gg-Mg:    #56B4E9; /* Mg²⁺ */
+  /* Anions (warm / high-contrast) */
+  --gg-Cl:     #D55E00; /* Cl⁻ */
+  --gg-Lactate:#E69F00; /* Lactate⁻ */
+  --gg-HCO3:   #F0E442; /* HCO₃⁻ */
+  --gg-Aminus: #F4B183; /* Albumin anionic contribution */
+  --gg-Pi:     #F7E0A0; /* Phosphate */
   /* Unknown (distinct) */
   --gg-Unknown:#000000; /* Unknown / SIG */
 }
@@ -221,6 +221,13 @@ svg rect.gg-rect.active {
   transform: translateY(-4px); filter: brightness(1.04); stroke: rgba(0,0,0,0.12); stroke-width: 1.6; opacity: 1; fill-opacity: 0.95;
 }
 
+/* Unknown segment: make visually distinct (thick gold outline + drop shadow) */
+svg rect.gg-rect[data-key="Unknown"] {
+  stroke: #FFD400; /* gold outline */
+  stroke-width: 2.4; 
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.6));
+}
+
 /* Slightly different outline on light theme for better contrast */
 body.light svg.focused rect.gg-rect:not(.active) {
   stroke: rgba(0,0,0,0.18);
@@ -266,17 +273,17 @@ body.light {
   --input-border: rgba(0,0,0,0.12); --tooltip-bg: rgba(255,255,255,0.98);
 
   /* Gamblegram palette — light mode overrides */
-  /* Cations (cool family) */
-  --gg-Na:    #2DB7FF; /* Na⁺ */
-  --gg-K:     #17BEBB; /* K⁺ */
-  --gg-iCa:   #2ECC71; /* iCa²⁺ */
-  --gg-Mg:    #9B59B6; /* Mg²⁺ */
-  /* Anions (warm/pastel family) */
-  --gg-Cl:     #FF6B6B; /* Cl⁻ */
-  --gg-Lactate:#FF9F1C; /* Lactate⁻ */
-  --gg-HCO3:   #FFE66D; /* HCO₃⁻ */
-  --gg-Aminus: #FFB6C1; /* Albumin anionic contribution */
-  --gg-Pi:     #FFDAB9; /* Phosphate */
+  /* Cations (color‑blind friendly set) */
+  --gg-Na:    #0052CC; /* Na⁺ */
+  --gg-K:     #009E73; /* K⁺ */
+  --gg-iCa:   #CC79A7; /* iCa²⁺ */
+  --gg-Mg:    #56B4E9; /* Mg²⁺ */
+  /* Anions (warm / high-contrast) */
+  --gg-Cl:     #D55E00; /* Cl⁻ */
+  --gg-Lactate:#E69F00; /* Lactate⁻ */
+  --gg-HCO3:   #F0E442; /* HCO₃⁻ */
+  --gg-Aminus: #F4B183; /* Albumin anionic contribution */
+  --gg-Pi:     #F7E0A0; /* Phosphate */
   /* Unknown (distinct) */
   --gg-Unknown:#000000; /* Unknown / SIG */
 }

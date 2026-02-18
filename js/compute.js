@@ -99,8 +99,8 @@ function computeAll() {
   const albEl  = el("res-alb");
   const piEl   = el("res-pi");
   const atotEl = el("res-atot");
-  if (albEl)  albEl.textContent  = albMinus.toFixed(3) + " mEq/L (A⁻)";
-  if (piEl)   piEl.textContent   = piMinus.toFixed(3)  + " mEq/L (Pi⁻)";
+  if (albEl)  albEl.textContent  = albMinus.toFixed(3) + " mEq/L (Alb⁻)";
+  if (piEl)   piEl.textContent   = piMinus.toFixed(3)  + " mEq/L (Phos⁻)";
   if (atotEl) atotEl.textContent =
     ((0.123 * (Number.isFinite(Alb_gL) ? Alb_gL : 0)) +
      (0.309 * (Phos || 0))).toFixed(3) + " mmol/L (Atot)";

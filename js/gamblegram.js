@@ -20,7 +20,7 @@ const SVG_LABELS = {
   iCa: "iCa\u00B2\u207A", Mg: "Mg\u00B2\u207A",
   Cl: "Cl\u207B", Lactate: "Lactate\u207B",
   HCO3: "HCO\u2083\u207B",
-  "A-": "A\u207B", "Pi-": "Pi\u207B",
+  Alb: "Alb\u207B", Phos: "Phos\u207B",
   Unknown: "Unknown",
 };
 
@@ -30,7 +30,7 @@ const HTML_LABELS = {
   iCa: 'iCa<sup>2+</sup>', Mg: 'Mg<sup>2+</sup>',
   Cl: 'Cl<sup>\u2212</sup>', Lactate: 'Lactate<sup>\u2212</sup>',
   HCO3: 'HCO<sub>3</sub><sup>\u2212</sup>',
-  "A-": 'A<sup>\u2212</sup>', "Pi-": 'Pi<sup>\u2212</sup>',
+  Alb: 'Alb<sup>\u2212</sup>', Phos: 'Phos<sup>\u2212</sup>',
   Unknown: "Unknown",
 };
 
@@ -88,7 +88,7 @@ function renderGamblegram(vals) {
     switch (k) {
       case "Mg":      return ((v / 2) / MG_FACTOR).toFixed(2)  + " mg/dL";
       case "iCa":     return ((v / 2) / CA_FACTOR).toFixed(2)  + " mg/dL";
-      case "Pi-":     return (v / PO4_FACTOR).toFixed(2)        + " mg/dL";
+      case "Phos":    return (v / PO4_FACTOR).toFixed(2)        + " mg/dL";
       case "Lactate": return (v / LAC_FACTOR).toFixed(2)        + " mg/dL";
       case "Na": case "K": case "Cl": case "HCO3":
         return v.toFixed(2) + " mEq/L";
@@ -98,7 +98,7 @@ function renderGamblegram(vals) {
 
   /* ── Read palette colors from CSS variables (allows dark/light palettes) ―─ */
   const cssColor = (key, fallback) => {
-    const map = { "A-": "Aminus", "Pi-": "Pi", "Lactate": "Lactate", "HCO3": "HCO3", "iCa": "iCa", "Mg": "Mg" };
+    const map = { "Alb": "Aminus", "Phos": "Pi", "Lactate": "Lactate", "HCO3": "HCO3", "iCa": "iCa", "Mg": "Mg" };
     const name = map[key] || key;
     const varName = "--gg-" + name;
     const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
@@ -116,8 +116,8 @@ function renderGamblegram(vals) {
     { k: "Cl",      v: Cl,       c: cssColor("Cl",      "#FFD8DA") },
     { k: "Lactate", v: Lac,      c: cssColor("Lactate", "#FFF6D6") },
     { k: "HCO3",    v: HCO3,     c: cssColor("HCO3",    "#E9FFEA") },
-    { k: "A-",      v: albMinus, c: cssColor("A-",      "#F0EAFF") },
-    { k: "Pi-",     v: piMinus,  c: cssColor("Pi-",     "#FFF9DE") },
+    { k: "Alb",     v: albMinus, c: cssColor("Aminus",  "#F0EAFF") },
+    { k: "Phos",    v: piMinus,  c: cssColor("Pi",      "#FFF9DE") },
   ];
 
   // SIG → "Unknown" segment at the top of the shorter column
@@ -336,7 +336,7 @@ function renderGamblegram(vals) {
     const val = parseFloat(rect.dataset.val) || 0;
 
     // Show the original entered unit if it differs from SI
-    const ID_MAP = { Na: "na", K: "k", iCa: "ica", Mg: "mg", Cl: "cl", Lactate: "lac", "Pi-": "phos" };
+    const ID_MAP = { Na: "na", K: "k", iCa: "ica", Mg: "mg", Cl: "cl", Lactate: "lac", Phos: "phos" };
     const mid    = ID_MAP[key];
     let extra    = "";
     if (mid) {
