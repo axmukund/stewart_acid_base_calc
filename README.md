@@ -42,31 +42,6 @@ python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
-## Deploying to GitHub Pages
-
-1. **Create a repository** on GitHub (public or private).
-
-2. **Push your code:**
-   ```bash
-   git init
-   git add .
-   git commit -m "initial commit"
-   git remote add origin https://github.com/<you>/<repo>.git
-   git push -u origin main
-   ```
-
-3. **Enable GitHub Pages:**
-   - Go to **Settings → Pages**
-   - Source: **Deploy from a branch**
-   - Branch: **main** / **/ (root)**
-   - Click **Save**
-
-4. **Wait ~60 seconds** — your site will be live at:
-   ```
-   https://<you>.github.io/<repo>/
-   ```
-
-The `.nojekyll` file in this repo tells GitHub Pages to serve the files directly (no Jekyll processing).
 
 ## File map & project structure
 
