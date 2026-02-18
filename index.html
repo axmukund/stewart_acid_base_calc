@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- Mobile browser chrome colour (matches dark background) -->
+    <meta name="theme-color" content="#071029" />
+    <title>Stewart / Figge — acid–base calculator</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════════════════════════
+         Main container — single-column card layout
+         ═══════════════════════════════════════════════════════════ -->
+    <main class="container">
+      <h1>Stewart / Figge — acid–base calculator</h1>
+      <p class="muted">Static demo — not for clinical use. Reproduces inputs & core outputs (SIDa, SIDe, SIG, AG).</p>
+
+      <!-- ── Global toggles ── -->
+      <div class="toolbar">
+        <label><input id="show-non-si" type="checkbox"> Show non‑SI units</label>
+        <label><input id="toggle-light" type="checkbox"> Light mode</label>
+      </div>
+
+      <!-- ── Mobile-only header (shown ≤ 520 px via CSS) ── -->
+      <div class="mobile-header" role="region" aria-label="Mobile summary" aria-hidden="false">
+        <div class="mobile-title">Stewart / Figge</div>
+        <div class="mobile-summary">
+          <div class="mh-item">SIDa <span id="mh-sida">—</span></div>
+          <div class="mh-item">SIDe <span id="mh-side">—</span></div>
+          <div class="mh-item">SIG <span id="mh-sig">—</span></div>
+        </div>
+        <div class="mobile-actions"><button id="mh-toggle-formulas" class="compact">Formulas</button></div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════
+           Input + results grid (single-column flex layout)
+           ═══════════════════════════════════════════════════════════ -->
+      <section class="grid">
+
+        <!-- ── Strong cations ── -->
+        <fieldset>
+          <legend>Strong cations</legend>
+          <label><span class="ion-label">Na<sup>+</sup> (mmol/L)</span><input id="na" type="number" step="0.1" value="140"></label>
+          <label><span class="ion-label">K<sup>+</sup> (mmol/L)</span><input id="k" type="number" step="0.1" value="4.0"></label>
+          <label><span class="ion-label">iCa<sup>2+</sup> (mmol/L)</span><select id="ica-unit" class="unit-select"><option value="si">mmol/L</option><option value="mgdl">mg/dL</option></select><input id="ica" type="number" step="0.01" value="1.20"></label>
+          <label><span class="ion-label">Mg<sup>2+</sup> (mmol/L)</span><select id="mg-unit" class="unit-select"><option value="mgdl">mg/dL</option><option value="si">mmol/L</option></select><input id="mg" type="number" step="0.01" value="1.95"></label>
+          <small class="muted small-note">Choose the unit per-ion (SI or non‑SI) using the selector before each input.</small>
+        </fieldset>
+
+        <!-- ── Strong anions ── -->
+        <fieldset>
+          <legend>Strong anions</legend>
+          <label><span class="ion-label">Cl<sup>−</sup> (mmol/L)</span><input id="cl" type="number" step="0.1" value="104"></label>
+          <label><span class="ion-label">Lactate<sup>−</sup> (mmol/L)</span><select id="lac-unit" class="unit-select"><option value="si">mmol/L</option><option value="mgdl">mg/dL</option></select><input id="lac" type="number" step="0.1" value="1.0"></label>
+        </fieldset>
+
+        <!-- ── Weak acids ── -->
+        <fieldset>
+          <legend>Weak acids</legend>
+          <label><span class="ion-label">Albumin (g/dL)</span><input id="alb" type="number" step="0.1" value="4.0"></label>
+          <label><span class="ion-label">Phosphate (mmol/L)</span><select id="phos-unit" class="unit-select"><option value="si">mmol/L</option><option value="mgdl">mg/dL</option></select><input id="phos" type="number" step="0.1" value="1.0"></label>
+          <label><span class="ion-label">HCO<sub>3</sub><sup>−</sup> (mmol/L)</span><input id="hco3" type="number" step="0.1" placeholder="auto" disabled></label>
+          <div class="checkbox-row"><input id="use-bmp-hco3" type="checkbox"><label for="use-bmp-hco3">Use measured BMP HCO<sub>3</sub> for Gamblegram (editable)</label></div>
+        </fieldset>
+
+        <!-- ── Blood gas ── -->
+        <fieldset>
+          <legend>Blood‑gas</legend>
+          <label>pH<input id="ph" type="number" step="0.01" value="7.40"></label>
+          <label>pCO2 (mmHg)<input id="pco2" type="number" step="0.1" value="40"></label>
+          <label>SBE (mmol/L) <input id="sbe" type="number" step="0.1" placeholder="optional"></label>
+        </fieldset>
+
+        <!-- ── Computed results ── -->
+        <section class="results compact" aria-live="polite">
+          <h2>Results</h2>
+          <dl>
+            <dt>SIDe</dt><dd id="res-side">—</dd>
+            <dt>SIDa</dt><dd id="res-sida">—</dd>
+            <dt>SIG</dt><dd id="res-sig">—</dd>
+            <dt>AG</dt><dd id="res-ag">—</dd>
+          </dl>
+          <div class="results-actions">
+            <button id="reset">Reset values</button>
+            <button id="export-gg" title="Export Gamblegram as PNG">Export Gamblegram</button>
+          </div>
+          <p class="note small-note">Values update live. Use the toggle above to show non‑SI units.</p>
+        </section>
+
+        <!-- ── Gamblegram (SVG stacked-bar chart) ── -->
+        <section class="gamblegram" aria-label="Gamblegram (ion balance)">
+          <h2>Gamblegram</h2>
+          <div class="gg-canvas">
+            <svg id="gg-svg" width="560" height="260" viewBox="0 0 560 260" role="img" aria-labelledby="gg-title gg-desc">
+              <title id="gg-title">Gamblegram — strong ions</title>
+              <desc id="gg-desc">Stacked cations (left) and anions (right). Unmeasured / unknown quantity highlighted in the legend as "Unknown".</desc>
+            </svg>
+          </div>
+          <div class="gg-info">
+            <div id="gg-unknown" class="gg-unknown">Unknown: —</div>
+            <div class="gg-legend" id="gg-legend"></div>
+          </div>
+        </section>
+
+        <!-- ── Formulas panel (collapsible) ── -->
+        <section class="formulas" id="formulas-panel">
+          <div class="formulas-header">
+            <h3>Formulas used</h3>
+            <button id="toggle-formulas" aria-expanded="true" class="collapse-btn">Hide</button>
+          </div>
+          <div class="formulas-body math">\[\begin{aligned}
+            \mathrm{SID_a} &= [\mathrm{Na}^+] + [\mathrm{K}^+] + [\mathrm{iCa}^{2+}] + [\mathrm{Mg}^{2+}] - [\mathrm{Cl}^-] - [\mathrm{Lactate}^-] \\[6pt]
+            A^- &\approx \dfrac{0.123\times(10\times\mathrm{Alb}_{\mathrm{g/dL}})}{1+10^{7.08-\mathrm{pH}}}\\[6pt]
+            \mathrm{Pi}^- &\approx \dfrac{0.309\times[\mathrm{Phosphate}\ (mmol/L)]}{1+10^{6.8-\mathrm{pH}}}\\[6pt]
+            \mathrm{Atot} &= 0.123\times[\mathrm{Alb}\ (g/L)] + 0.309\times[\mathrm{Phosphate}\ (mmol/L)]\\[6pt]
+            \mathrm{SID_e} &= [\mathrm{HCO}_3^-] + A^- + \mathrm{Pi}^- \\\Rightarrow\quad \mathrm{SIG} &= \mathrm{SID_a} - \mathrm{SID_e}\\[6pt]
+            \mathrm{HCO}_3^-\ (from\ blood\ gas) &\approx 0.03\times pCO_2\times 10^{\mathrm{pH}-6.1}
+          \end{aligned}\]</div>
+        </section>
+      </section>
+
+      <!-- ── Footer ── -->
+      <footer>
+        <small>Static SPA — not for clinical use. Inspired by <a href="https://medischesnippers.nl/stewart/" target="_blank" rel="noopener">medischesnippers.nl/stewart</a>.</small>
+      </footer>
+
+      <!-- Tooltip (positioned absolutely by JS) -->
+      <div id="gg-tooltip" class="gg-tooltip" role="tooltip" aria-hidden="true"></div>
+    </main>
+
+    <!-- ── Application logic ── -->
+    <script src="./app.js"></script>
+    <!-- MathJax — renders the LaTeX formulas panel -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  </body>
+</html>

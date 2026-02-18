@@ -1,0 +1,229 @@
+/*  Stewart / Figge — Acid-Base Calculator
+ *  ─────────────────────────────────────────
+ *  All visual styling for the single-page app.
+ *  Uses CSS custom properties for dark/light theme switching.
+ */
+
+/* ═══════════════════════════════════════════════════════════
+   §1  Design tokens (dark mode — default)
+   ═══════════════════════════════════════════════════════════ */
+/* -- Design tokens (dark) -- */
+:root {
+  --fg: #e6eef8; --muted: #9aa4b2; --gg-label: #9aa4b2;
+  --accent: #60a5fa; --card: #0b1220;
+  --border: rgba(255,255,255,0.06); --glass: rgba(255,255,255,0.03);
+  --input-border: rgba(255,255,255,0.08); --tooltip-bg: rgba(2,6,23,0.92);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   §2  Reset & body
+   ═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  min-height: 100vh; line-height: 1.4; margin: 0;
+  background: linear-gradient(180deg, #071029 0%, #071b2a 100%);
+  color: var(--fg);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px 16px 48px; overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   §3  Container card
+   ═══════════════════════════════════════════════════════════ */
+/* -- Container -- */
+.container {
+  position: relative; width: 100%; max-width: 780px;
+  background: var(--card); border-radius: 12px; padding: 22px;
+  margin: 0 auto; box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  border: 1px solid var(--border);
+}
+h1 { margin: 0 0 6px; font-size: 20px; }
+h2 { margin: 0 0 8px; }
+h3 { margin: 0; }
+p.muted { color: var(--muted); margin: 6px 0 18px; }
+.note { color: var(--muted); margin-top: 10px; font-size: 13px; }
+footer { margin-top: 14px; color: var(--muted); font-size: 13px; }
+
+/* ═══════════════════════════════════════════════════════════
+   §4  Single-column layout
+   ═══════════════════════════════════════════════════════════ */
+/* -- Single-column stack -- */
+section.grid { display: flex; flex-direction: column; gap: 14px; }
+
+/* ═══════════════════════════════════════════════════════════
+   §5  Fieldsets & inputs
+   ═══════════════════════════════════════════════════════════ */
+/* -- Fieldsets / inputs -- */
+fieldset {
+  background: var(--glass); border-radius: 8px; padding: 12px;
+  border: 1px solid var(--border);
+}
+legend { font-weight: 600; color: var(--accent); }
+label {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; font-size: 14px; color: var(--fg);
+}
+input[type="number"] {
+  width: 96px; background: transparent;
+  border: 1px solid var(--input-border);
+  padding: 6px 8px; border-radius: 6px; color: inherit; text-align: right;
+}
+input[disabled] { background: rgba(255,255,255,0.01); color: var(--muted); cursor: not-allowed; }
+.ion-label { white-space: nowrap; display: inline-block; font-weight: 600; }
+.ion-label sup, .ion-label sub,
+.gg-legend .item sup, label sup { font-size: .72em; line-height: 1; vertical-align: super; margin-left: 0.05ch; }
+.unit-select {
+  margin-left: 8px; background: transparent;
+  border: 1px solid var(--input-border); color: inherit;
+  padding: 4px 6px; border-radius: 6px; font-size: 12px;
+}
+select.unit-select option { color: inherit; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; padding-top: 6px; }
+.checkbox-row input { width: auto; margin: 0; }
+.small-note { font-size: 12px; color: var(--muted); margin-top: 6px; display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   §6  Toolbar (global toggles)
+   ═══════════════════════════════════════════════════════════ */
+/* -- Toolbar -- */
+.toolbar { display: flex; gap: 14px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+.toolbar label { color: var(--muted); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+
+/* ═══════════════════════════════════════════════════════════
+   §7  Mobile header (hidden on desktop)
+   ═══════════════════════════════════════════════════════════ */
+/* -- Mobile header (hidden on desktop) -- */
+.mobile-header {
+  display: none; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+.mobile-header .mobile-title { font-weight: 800; color: var(--accent); font-size: 15px; white-space: nowrap; }
+.mobile-header .mobile-summary { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.mobile-header .mh-item { color: var(--muted); font-weight: 700; font-size: 13px; }
+.mobile-header .mobile-actions .compact {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); padding: 6px 8px; border-radius: 6px;
+  cursor: pointer; font-size: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   §8  Results panel
+   ═══════════════════════════════════════════════════════════ */
+/* -- Results -- */
+.results.compact {
+  padding: 14px; background: rgba(255,255,255,0.02);
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.02);
+}
+.results.compact dl { display: grid; grid-template-columns: 1fr 140px; gap: 8px; align-items: center; }
+.results.compact dt { font-size: 15px; color: var(--muted); }
+.results.compact dd { font-size: 18px; margin: 0; font-weight: 800; text-align: right; }
+.results-actions { margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.results-actions button {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); padding: 6px 10px; border-radius: 6px;
+  cursor: pointer; font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   §9  Gamblegram (SVG stacked bars)
+   ═══════════════════════════════════════════════════════════ */
+/* -- Gamblegram -- */
+.gamblegram {
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);
+}
+.gamblegram h2 { margin: 0 0 8px; color: var(--accent); }
+.gg-canvas { display: flex; justify-content: center; align-items: flex-start; }
+svg#gg-svg { width: 100%; height: auto; display: block; transition: opacity 240ms ease; }
+svg text.gg-val { fill: var(--gg-label); font-weight: 400; }
+svg text.gg-name { fill: var(--gg-label); font-weight: 400; }
+.gg-info { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }
+.gg-legend { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.gg-legend .item { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; line-height: 1.4; }
+.gg-legend .swatch {
+  width: 12px; height: 12px; border-radius: 3px; display: inline-block;
+  border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+}
+.gg-unknown { margin-top: 8px; font-weight: 700; color: #ffd166; }
+
+/* ═══════════════════════════════════════════════════════════
+   §10  Tooltip
+   ═══════════════════════════════════════════════════════════ */
+/* -- Tooltip -- */
+.gg-tooltip {
+  position: absolute; pointer-events: none; padding: 8px 10px;
+  border-radius: 8px; background: var(--tooltip-bg); color: var(--fg);
+  font-size: 13px; border: 1px solid var(--border);
+  transform: translate(-50%, -110%); white-space: nowrap; z-index: 40;
+  box-shadow: 0 6px 30px rgba(2,6,23,0.6);
+  opacity: 0; transition: opacity 120ms ease, transform 120ms ease;
+}
+.gg-tooltip.visible { opacity: 1; transform: translate(-50%, -120%) scale(1); }
+
+/* ═══════════════════════════════════════════════════════════
+   §11  Formulas panel (collapsible)
+   ═══════════════════════════════════════════════════════════ */
+/* -- Formulas / collapsible -- */
+.formulas { margin-top: 4px; }
+.formulas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; }
+.collapse-btn {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); padding: 6px 10px; border-radius: 6px;
+  cursor: pointer; font-size: 13px; flex-shrink: 0;
+}
+.formulas.collapsed .formulas-body { display: none; }
+
+/* ═══════════════════════════════════════════════════════════
+   §12  SVG interactivity (hover / focus effects)
+   ═══════════════════════════════════════════════════════════ */
+/* -- Gamblegram interactivity -- */
+svg rect.gg-rect { transition: transform 120ms ease, filter 120ms ease, stroke 120ms ease; }
+svg rect.gg-rect:hover, svg rect.gg-rect:focus {
+  transform: translateY(-3px); filter: brightness(1.03);
+  stroke: rgba(0,0,0,0.12); stroke-width: 1.2; cursor: pointer; outline: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   §13  Mobile breakpoint (≤ 520 px)
+   ═══════════════════════════════════════════════════════════ */
+/* -- Mobile (<=520px) -- */
+@media (max-width: 520px) {
+  body { padding: 10px 8px 32px; }
+  .container { padding: 14px; border-radius: 8px; }
+  .mobile-header { display: flex; }
+  h1 { font-size: 17px; }
+  label { flex-direction: column; align-items: stretch; gap: 6px; }
+  label .ion-label { font-weight: 700; }
+  input[type="number"] { width: 100%; }
+  .unit-select { margin-left: 0; align-self: flex-start; }
+  .results.compact dl { grid-template-columns: 1fr 110px; }
+  .results.compact dd { font-size: 15px; }
+  .results-actions { justify-content: stretch; }
+  .results-actions button { flex: 1; text-align: center; }
+  .gg-legend .item { font-size: 13px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   §14  Light-mode overrides
+   ═══════════════════════════════════════════════════════════ */
+/* -- Light mode -- */
+body.light {
+  background: linear-gradient(180deg, #f6f8fb 0%, #eef3f7 100%);
+  color: #0b1220;
+  --fg: #111827; --muted: #6b7280; --gg-label: #374151;
+  --accent: #1d4ed8; --card: #ffffff;
+  --border: rgba(2,6,23,0.08); --glass: rgba(0,0,0,0.02);
+  --input-border: rgba(0,0,0,0.12); --tooltip-bg: rgba(255,255,255,0.98);
+}
+body.light .container {
+  background: var(--card); color: var(--fg);
+  border: 1px solid var(--border); box-shadow: 0 6px 26px rgba(2,6,23,0.04);
+}
+body.light input[type="number"] { color: var(--fg); }
+body.light input::placeholder { color: #9ca3af; }
+body.light .gg-legend .swatch { border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+body.light .gg-tooltip { color: #111; }
