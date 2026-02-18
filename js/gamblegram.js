@@ -174,7 +174,15 @@ function renderGamblegram(vals) {
   const barsW  = 2 * barW + gap;
   const leftX  = Math.round((W - barsW) / 2);
   const rightX = leftX + barW + gap;
-  const fSize  = Math.max(10, Math.round(W * 0.028));
+  // Compute label font size from container width but cap it at the
+  // legend's computed font-size so large canvases don't produce
+  // oversized labels. Keep a sensible minimum for small screens.
+  const widthDerived = Math.round(W * 0.028);
+  const legendFont = (() => {
+    try { return parseFloat(getComputedStyle(legend).fontSize) || widthDerived; }
+    catch (e) { return widthDerived; }
+  })();
+  const fSize  = Math.max(10, Math.min(widthDerived, Math.round(legendFont)));
   const baseY  = padTop + H;
 
   const sum      = (a) => a.reduce((s, x) => s + (x.v || 0), 0);
