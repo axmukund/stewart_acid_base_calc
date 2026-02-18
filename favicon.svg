@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#1a2332" stroke="#4a9eff" stroke-width="3"/>
+  
+  <!-- Cation (positive ion) - left side, blue -->
+  <circle cx="35" cy="40" r="12" fill="#4a9eff" opacity="0.9"/>
+  <text x="35" y="45" fill="#1a2332" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" text-anchor="middle">+</text>
+  
+  <!-- Anion (negative ion) - right side, orange -->
+  <circle cx="65" cy="60" r="12" fill="#ff8844" opacity="0.9"/>
+  <text x="65" y="65" fill="#1a2332" font-family="system-ui, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">−</text>
+  
+  <!-- Small balance/scale line connecting them -->
+  <line x1="35" y1="40" x2="65" y2="60" stroke="#9aa4b2" stroke-width="2" opacity="0.5"/>
+</svg>
