@@ -727,32 +727,37 @@ document.querySelectorAll("select.unit-select").forEach((sel) => {
 // Native select pickers: populate and keep pickers in sync with numeric inputs
 const PICKER_CONFIG = [
   { id: 'na',   min: 110, max: 160, step: 1,    decimals: 0 },
-  { id: 'k',    min: 2.0, max: 6.0, step: 0.1,  decimals: 1 },
+  // K, Mg and Phos now span 0–10 per your request (picker increments preserved)
+  { id: 'k',    min: 0.0, max: 10.0, step: 0.1,  decimals: 1 },
   { id: 'ica',  min: 0.80, max: 1.60, step: 0.01, decimals: 2 },
-  { id: 'mg',   min: 1.00, max: 3.00, step: 0.01, decimals: 2 },
+  { id: 'mg',   min: 0.00, max: 10.00, step: 0.01, decimals: 2 },
   { id: 'cl',   min: 80,  max: 140, step: 1,    decimals: 0 },
   { id: 'lac',  min: 0.0, max: 10.0, step: 0.1, decimals: 1 },
   { id: 'alb',  min: 1.0, max: 6.0, step: 0.1, decimals: 1 },
-  { id: 'phos', min: 0.2, max: 5.0, step: 0.1, decimals: 1 },
+  { id: 'phos', min: 0.00, max: 10.00, step: 0.1, decimals: 1 },
 ];
 
 function populatePicker(cfg) {
   const sel = document.getElementById(cfg.id + '-picker');
-  const num = document.getElementById(cfg.id);
-  if (!sel || !num) return;
+  // `num` may be a hidden/removed numeric input or the picker itself — accept either
+  const num = el(cfg.id) || sel;
+  if (!sel) return;
   sel.innerHTML = '';
   const steps = Math.round((cfg.max - cfg.min) / cfg.step);
+  const unitEl = document.getElementById(cfg.id + '-unit');
+  const unit = unitEl ? unitEl.value : 'si';
   for (let i = 0; i <= steps; i++) {
-    const v = cfg.min + i * cfg.step;
-    const label = v.toFixed(cfg.decimals);
+    const vSI = cfg.min + i * cfg.step; // base value in SI
+    const displayV = unit === 'si' ? vSI : siToDisplay(cfg.id, vSI, unit);
+    const label = Number(displayV).toFixed(cfg.decimals);
     const opt = document.createElement('option');
     opt.value = label; opt.textContent = label;
     sel.appendChild(opt);
   }
-  // ensure the picker shows the current numeric value (or the nearest option)
-  const cur = parseFloat(num.value);
+  // ensure the picker shows the current numeric/display value (or append it)
+  const cur = parse(cfg.id);
   if (Number.isFinite(cur)) {
-    const want = cur.toFixed(cfg.decimals);
+    const want = Number(cur).toFixed(cfg.decimals);
     if (!Array.from(sel.options).some(o => o.value === want)) {
       const extra = document.createElement('option');
       extra.value = want; extra.textContent = want; sel.appendChild(extra);
@@ -761,8 +766,10 @@ function populatePicker(cfg) {
   }
 
   sel.addEventListener('change', (e) => {
-    num.value = e.target.value;
-    num.dispatchEvent(new Event('input', { bubbles: true }));
+    // if there is still an input element (some ions keep numeric fields), update it;
+    // otherwise the picker handles the value itself. Always recompute.
+    if (num !== sel) num.value = e.target.value;
+    computeAll();
   });
 
   num.addEventListener('input', () => {
@@ -786,6 +793,7 @@ document.querySelectorAll('select.unit-select').forEach(s => {
     const ion = s.id.replace('-unit','');
     const cfg = PICKER_CONFIG.find(c => c.id === ion);
     if (cfg) populatePicker(cfg);
+    computeAll();
   });
 });
 

@@ -185,11 +185,23 @@ svg text.gg-name { fill: var(--gg-label); font-weight: 400; }
    §12  SVG interactivity (hover / focus effects)
    ═══════════════════════════════════════════════════════════ */
 /* -- Gamblegram interactivity -- */
-svg rect.gg-rect { transition: transform 120ms ease, filter 120ms ease, stroke 120ms ease; }
+svg rect.gg-rect { transition: transform 160ms ease, filter 160ms ease, stroke 160ms ease, fill-opacity 160ms ease; }
 svg rect.gg-rect:hover, svg rect.gg-rect:focus {
   transform: translateY(-3px); filter: brightness(1.03);
   stroke: rgba(0,0,0,0.12); stroke-width: 1.2; cursor: pointer; outline: none;
 }
+
+/* Focused mode: dim / hollow out all regions except the active one */
+svg.focused rect.gg-rect { fill-opacity: 0.12; opacity: 0.6; filter: grayscale(40%); }
+svg.focused rect.gg-rect:not(.active) {
+  /* visually "hollow" non-active segments */
+  fill-opacity: 0.06; stroke: rgba(255,255,255,0.06); stroke-width: 1; opacity: 0.7;
+  transform: none; filter: none;
+}
+svg rect.gg-rect.active {
+  transform: translateY(-4px); filter: brightness(1.04); stroke: rgba(0,0,0,0.12); stroke-width: 1.4; opacity: 1;
+}
+
 
 /* ═══════════════════════════════════════════════════════════
    §13  Mobile breakpoint (≤ 520 px)
