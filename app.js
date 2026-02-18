@@ -7,9 +7,10 @@
  * Core equations  (all in mEq/L)
  * ──────────────
  *   SIDa  = [Na⁺] + [K⁺] + 2[Ca²⁺] + 2[Mg²⁺] − [Cl⁻] − [Lactate⁻]
- *   A⁻    ≈ Alb(g/L) × (0.123 × pH − 0.631)     (Watson / Figge–Fencl)
- *   Pi⁻   ≈ Phos(mmol/L) × (0.309 × pH − 0.469) (Watson / Figge–Fencl)
- *   Atot  = 0.123 × Alb(g/L) + 0.309 × Phos(mmol/L)
+ *   A⁻    = full Figge–Fencl v3.0 multi-proton albumin model
+ *          (16 individual His pKa from NMR, N→B transition,
+ *           9 anomalous Lys, Cys, Tyr — fitted to titration data)
+ *   Pi⁻   = triprotic phosphate equilibrium (pKa 1.915 / 6.66 / 11.78)
  *   SIDe  = [HCO₃⁻] + A⁻ + Pi⁻
  *   SIG   = SIDa − SIDe
  *   HCO₃⁻ ≈ 0.03 × pCO₂ × 10^(pH − 6.1)       (Henderson–Hasselbalch)
@@ -55,29 +56,84 @@ function hco3FromPHandPco2(pH, pCO2) {
 }
 
 /**
- * Watson / Figge–Fencl linear approximation — albumin charge (A⁻).
- *   A⁻ = Alb(g/L) × (0.123 × pH − 0.631)
+ * Full Figge–Fencl v3.0 albumin charge model.
+ *
+ * Treats human serum albumin (MW 66 500) as a macro-ion with
+ * individual pKa values for every ionisable residue, fitted to
+ * potentiometric titration data by Figge, Mydosh & Fencl (1992)
+ * and refined with NMR-derived histidine pKa values.
+ *
  * At pH 7.40, Alb 4.0 g/dL (40 g/L) → A⁻ ≈ 11.2 mEq/L.
+ *
+ * Ref: Figge J. figge-fencl.org model v3.0 (2003–2013);
+ *      Figge J, Mydosh T, Fencl V. J Lab Clin Med 1992;120:713-719.
  *
  * @param {number} albGperL  Albumin in g/L
  * @param {number} pH        Arterial pH
- * @returns {number}         A⁻ in mEq/L
+ * @returns {number}         A⁻ in mEq/L (positive value = net negative charge)
  */
 function albuminCharge(albGperL, pH) {
-  return albGperL * (0.123 * pH - 0.631);
+  const albMM = albGperL / 66.5;           // mmol/L
+
+  /* ── N→B conformational transition (domain-1 His 1-5) ── */
+  const NB = 0.4 * (1 - 1 / (1 + Math.pow(10, pH - 6.9)));
+
+  /* ── Histidine residues: 16 individual pKa at 37 °C ── */
+  //   His 1-5 are in domain 1 and shift down by NB
+  const HIS_NB  = [7.12, 7.22, 7.10, 7.49, 7.01]; // NMR, domain 1
+  const HIS_STD = [7.31, 6.75, 6.36, 4.85, 5.76,  // His 6-13 (NMR)
+                   6.17, 6.73, 5.82, 5.10, 6.70, 6.20]; // His 14-16 (fit/assigned)
+
+  let his = 0;
+  for (let i = 0; i < HIS_NB.length; i++)
+    his += 1 / (1 + Math.pow(10, pH - (HIS_NB[i] - NB)));
+  for (let i = 0; i < HIS_STD.length; i++)
+    his += 1 / (1 + Math.pow(10, pH - HIS_STD[i]));
+
+  /* ── Lysine: 59 total (50 normal + 9 low-titrating in 5 groups) ── */
+  const lys =
+      2 / (1 + Math.pow(10, pH - 5.800))     // N1
+    + 2 / (1 + Math.pow(10, pH - 6.150))     // N2
+    + 2 / (1 + Math.pow(10, pH - 7.510))     // N3
+    + 2 / (1 + Math.pow(10, pH - 7.685))     // N4
+    + 1 / (1 + Math.pow(10, pH - 7.860))     // N5
+   + 50 / (1 + Math.pow(10, pH - 10.30));    // N7 (normal)
+
+  /* ── Other basic groups ── */
+  const arg  = 24 / (1 + Math.pow(10, pH - 12.5));   // Arg
+  const nh2  =  1 / (1 + Math.pow(10, pH -  8.0));   // α-amino
+
+  /* ── Acidic groups (negative when deprotonated) ── */
+  const acooh  =  -1 / (1 + Math.pow(10, 3.1  - pH));  // α-COOH
+  const aspGlu = -98 / (1 + Math.pow(10, 3.9  - pH));  // Asp 36 + Glu 62
+  const cys    =  -1 / (1 + Math.pow(10, 8.5  - pH));  // Cys (free thiol)
+  const tyr    = -18 / (1 + Math.pow(10, 11.7 - pH));  // Tyr
+
+  const netPerMol = his + lys + arg + nh2 + acooh + aspGlu + cys + tyr;
+  return -albMM * netPerMol; // positive = mEq/L of net negative charge
 }
 
 /**
- * Watson / Figge–Fencl linear approximation — phosphate charge (Pi⁻).
- *   Pi⁻ = Phos(mmol/L) × (0.309 × pH − 0.469)
- * At pH 7.40, Phos 1.0 mmol/L → Pi⁻ ≈ 1.8 mEq/L.
+ * Full triprotic phosphate equilibrium model.
  *
- * @param {number} phos  Phosphate in mmol/L
+ * H₃PO₄ ⇌ H₂PO₄⁻ ⇌ HPO₄²⁻ ⇌ PO₄³⁻
+ * pKa values from Sendroy & Hastings (1927) for plasma at 37 °C.
+ *
+ * At pH 7.40, Phos 1.0 mmol/L → Pi⁻ ≈ 1.85 mEq/L.
+ *
+ * @param {number} phos  Total phosphate in mmol/L
  * @param {number} pH    Arterial pH
  * @returns {number}     Pi⁻ in mEq/L
  */
 function phosphateCharge(phos, pH) {
-  return phos * (0.309 * pH - 0.469);
+  const K1 = Math.pow(10, -1.915);  // pKa₁
+  const K2 = Math.pow(10, -6.66);   // pKa₂
+  const K3 = Math.pow(10, -11.78);  // pKa₃
+  const H  = Math.pow(10, -pH);
+
+  const d = H * H * H + K1 * H * H + K1 * K2 * H + K1 * K2 * K3;
+  const z = (K1 * H * H + 2 * K1 * K2 * H + 3 * K1 * K2 * K3) / d;
+  return phos * z;
 }
 
 /* =====================================================================
@@ -751,7 +807,7 @@ const PICKER_DEFAULTS_SI = {
   k: 4.0,
   ica: 1.20,
   mg: 0.50,     // ionized Mg (≈ 60 % of total serum Mg ≈ 0.85)
-  cl: 108.0,
+  cl: 104.0,
   lac: 1.0,
   alb: 4.0,     // albumin (g/dL input is handled separately in parse)
   phos: 1.0
