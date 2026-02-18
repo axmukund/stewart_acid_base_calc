@@ -2,14 +2,23 @@
   <!-- Background circle -->
   <circle cx="50" cy="50" r="48" fill="#1a2332" stroke="#4a9eff" stroke-width="3"/>
   
-  <!-- Cation (positive ion) - left side, blue -->
-  <circle cx="35" cy="40" r="12" fill="#4a9eff" opacity="0.9"/>
-  <text x="35" y="45" fill="#1a2332" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" text-anchor="middle">+</text>
+  <!-- Test tube body -->
+  <rect x="38" y="25" width="24" height="50" rx="2" fill="#e8e9ff" opacity="0.2" stroke="#9aa4b2" stroke-width="2"/>
   
-  <!-- Anion (negative ion) - right side, orange -->
-  <circle cx="65" cy="60" r="12" fill="#ff8844" opacity="0.9"/>
-  <text x="65" y="65" fill="#1a2332" font-family="system-ui, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">−</text>
+  <!-- Blood/sample liquid with gradient (slightly acidic = orange, balanced = yellow-green) -->
+  <defs>
+    <linearGradient id="sampleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffaa44;stop-opacity:0.85" />
+      <stop offset="100%" style="stop-color:#ff6644;stop-opacity:0.9" />
+    </linearGradient>
+  </defs>
+  <rect x="38" y="50" width="24" height="25" rx="2" fill="url(#sampleGrad)"/>
   
-  <!-- Small balance/scale line connecting them -->
-  <line x1="35" y1="40" x2="65" y2="60" stroke="#9aa4b2" stroke-width="2" opacity="0.5"/>
+  <!-- Test tube cap/stopper -->
+  <rect x="36" y="22" width="28" height="5" rx="1.5" fill="#9aa4b2"/>
+  
+  <!-- Small pH indicator markings on the side -->
+  <line x1="34" y1="52" x2="36" y2="52" stroke="#4a9eff" stroke-width="1.5" opacity="0.7"/>
+  <line x1="34" y1="60" x2="36" y2="60" stroke="#ffaa44" stroke-width="1.5" opacity="0.7"/>
+  <line x1="34" y1="68" x2="36" y2="68" stroke="#ff6644" stroke-width="1.5" opacity="0.7"/>
 </svg>
