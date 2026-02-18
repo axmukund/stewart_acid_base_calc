@@ -18,11 +18,11 @@
 const PICKER_CONFIG = [
   { id: "na",   min: 110,  max: 160,   step: 1,    decimals: 0 },
   { id: "k",    min: 0.0,  max: 10.0,  step: 0.1,  decimals: 1 },
-  { id: "ica",  min: 0.80, max: 1.60,  step: 0.01, decimals: 2 },
+  { id: "ica",  min: 0.00, max: 2.00,  step: 0.01, decimals: 2 },
   { id: "mg",   min: 0.00, max: 10.00, step: 0.01, decimals: 2 },
-  { id: "cl",   min: 80,   max: 140,   step: 1,    decimals: 0 },
+  { id: "cl",   min: 60,   max: 150,   step: 1,    decimals: 0 },
   { id: "lac",  min: 0.0,  max: 10.0,  step: 0.1,  decimals: 1 },
-  { id: "alb",  min: 1.0,  max: 6.0,   step: 0.1,  decimals: 1 },
+  { id: "alb",  min: 0.0,  max: 6.0,   step: 0.1,  decimals: 1 },
   { id: "phos", min: 0.00, max: 10.00, step: 0.1,  decimals: 1 },
 ];
 

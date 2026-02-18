@@ -101,21 +101,7 @@
           <label>SBE (mmol/L) <input id="sbe" type="number" step="0.1" placeholder="optional"></label>
         </fieldset>
 
-        <!-- ── Computed results ── -->
-        <section class="results compact" aria-live="polite">
-          <h2>Results</h2>
-          <dl>
-            <dt>SIDe</dt><dd id="res-side">—</dd>
-            <dt>SIDa</dt><dd id="res-sida">—</dd>
-            <dt>SIG</dt><dd id="res-sig">—</dd>
-            <dt>AG</dt><dd id="res-ag">—</dd>
-          </dl>
-          <div class="results-actions">
-            <button id="reset">Reset values</button>
-            <button id="export-gg" title="Export Gamblegram as PNG">Export Gamblegram</button>
-          </div>
-          <p class="note small-note">Values update live. Use the toggle above to show non‑SI units.</p>
-        </section>
+
 
         <!-- ── Gamblegram (SVG stacked-bar chart) ── -->
         <section class="gamblegram" aria-label="Gamblegram (ion balance)">
@@ -132,6 +118,22 @@
           </div>
         </section>
 
+        <!-- ── Computed results (moved below Gamblegram) ── -->
+        <section class="results compact" aria-live="polite">
+          <h2>Results</h2>
+          <dl>
+            <dt>SIDe</dt><dd id="res-side">—</dd>
+            <dt>SIDa</dt><dd id="res-sida">—</dd>
+            <dt>SIG</dt><dd id="res-sig">—</dd>
+            <dt>AG</dt><dd id="res-ag">—</dd>
+          </dl>
+          <div class="results-actions">
+            <button id="reset">Reset values</button>
+            <button id="export-gg" title="Export Gamblegram as PNG">Export Gamblegram</button>
+          </div>
+          <p class="note small-note">Values update live. Use the toggle above to show non‑SI units.</p>
+        </section>
+
         <!-- ── Formulas panel (collapsible) ── -->
         <section class="formulas collapsed" id="formulas-panel">
           <div class="formulas-header">
@@ -140,13 +142,20 @@
           </div>
           <div class="formulas-body math">\[\begin{aligned}
             \mathrm{SID_a} &= [\mathrm{Na}^+] + [\mathrm{K}^+] + 2[\mathrm{Ca}^{2+}] + 2[\mathrm{Mg}^{2+}] - [\mathrm{Cl}^-] - [\mathrm{Lactate}^-] \\[8pt]
-            A^- &= -\,\frac{[\mathrm{Alb}]_{g/L}}{66.5}\;\sum_i \frac{n_i\,(\pm 1)}{1+10^{\,\pm(pK_{a,i}\,-\,\mathrm{pH})}}
-            \quad\text{(Figge–Fencl v3.0)}\\[8pt]
+            A^- &= -\,\frac{[\mathrm{Alb}]_{g/L}}{66.5}\;\sum_i \frac{n_i\,(\pm 1)}{1+10^{\,\pm(pK_{a,i}\,-\,\mathrm{pH})}}\quad\text{(Figge–Fencl v3.0)}\\[8pt]
             \mathrm{Pi}^- &= [\mathrm{PO_4}]\;\frac{K_1[\mathrm{H}^+]^2 + 2K_1K_2[\mathrm{H}^+] + 3K_1K_2K_3}{[\mathrm{H}^+]^3 + K_1[\mathrm{H}^+]^2 + K_1K_2[\mathrm{H}^+] + K_1K_2K_3}\\[8pt]
             \mathrm{SID_e} &= [\mathrm{HCO}_3^-] + A^- + \mathrm{Pi}^- \\[4pt]
             \mathrm{SIG} &= \mathrm{SID_a} - \mathrm{SID_e}\\[8pt]
-            [\mathrm{HCO}_3^-] &= 0.03\times pCO_2\times 10^{\,\mathrm{pH}\,-\,6.1}
-            \quad\text{(Henderson–Hasselbalch)}
+            [\mathrm{HCO}_3^-] &= 0.03\times pCO_2\times 10^{\,\mathrm{pH}\,-\,6.1}\quad\text{(Henderson--Hasselbalch)}\\[12pt]
+            \textbf{Definitions:}\\[4pt]
+            n_i &\;=\; \text{stoichiometric charge contribution of site }i\; (\pm 1;\text{ e.g. His, Lys, Asp/Glu})\\[6pt]
+            pK_{a,i} &\;=\; \text{site-specific acid dissociation constant for residue }i\\[6pt]
+            K_j &\;=\;10^{-pK_j}\;\text{(so }K_1,K_2,K_3\text{ are the phosphate dissociation constants)}\\[6pt]
+            [\mathrm{PO_4}] &\;=\;\text{total inorganic phosphate (mmol/L)}\\[6pt]
+            [\mathrm{Alb}]_{g/L} &\;=\;\text{albumin concentration in g/L (use g/dL × 10)}\\[6pt]
+            \alpha &\;=\;0.03\;\mathrm{L\cdot mmHg^{-1}}\;\text{(CO}_2\text{ solubility at 37\,°C)}\\[6pt]
+            \text{Sum over }i &\;\text{runs over albumin titratable residues (His, Lys, Arg, Asp/Glu, Tyr, N/C termini);}
+            \text{ site pK values follow Figge–Fencl v3.0 (implemented in }js/physiology.js\text{).}
           \end{aligned}\]</div>
         </section>
       </section>
