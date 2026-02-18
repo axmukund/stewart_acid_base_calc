@@ -78,16 +78,17 @@ fieldset {
 legend { font-weight: 600; color: var(--accent); }
 label {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 6px 0; font-size: 14px; color: var(--fg);
+  padding: 6px 0; font-size: 16px; color: var(--fg);
 }
 input[type="number"] {
-  width: 96px; background: transparent;
+  width: 96px; height: 40px; background: transparent;
   border: 1px solid var(--input-border);
-  padding: 6px 8px; border-radius: 6px; color: inherit; text-align: right;
+  padding: 8px 10px; border-radius: 6px; color: inherit; text-align: right;
+  font-size: 16px;
 }
 input[disabled] { background: rgba(255,255,255,0.01); color: var(--muted); cursor: not-allowed; }
 /* native select pickers (replace sliders) */
-.picker { display: inline-block; min-width: 120px; margin-left: 8px; }
+.picker { display: inline-block; min-width: 140px; margin-left: 8px; min-height: 40px; font-size: 16px; }
 
 
 .ion-label { white-space: nowrap; display: inline-block; font-weight: 600; }
@@ -96,11 +97,11 @@ input[disabled] { background: rgba(255,255,255,0.01); color: var(--muted); curso
 .unit-select {
   margin-left: 8px; background: transparent;
   border: 1px solid var(--input-border); color: inherit;
-  padding: 4px 6px; border-radius: 6px; font-size: 12px;
+  padding: 8px 10px; border-radius: 6px; font-size: 14px; min-height: 40px;
 }
 select.unit-select option { color: inherit; }
-.checkbox-row { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; padding-top: 6px; }
-.checkbox-row input { width: auto; margin: 0; }
+.checkbox-row { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 16px; padding-top: 6px; }
+.checkbox-row input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
 .small-note { font-size: 12px; color: var(--muted); margin-top: 6px; display: block; }
 
 /* ═══════════════════════════════════════════════════════════
@@ -108,7 +109,7 @@ select.unit-select option { color: inherit; }
    ═══════════════════════════════════════════════════════════ */
 /* -- Toolbar -- */
 .toolbar { display: flex; gap: 14px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
-.toolbar label { color: var(--muted); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+.toolbar label { color: var(--muted); font-size: 16px; display: flex; gap: 8px; align-items: center; }
 
 /* ═══════════════════════════════════════════════════════════
    §7  Mobile header (hidden on desktop)
@@ -142,8 +143,8 @@ select.unit-select option { color: inherit; }
 .results-actions { margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .results-actions button {
   background: transparent; border: 1px solid var(--border);
-  color: var(--muted); padding: 6px 10px; border-radius: 6px;
-  cursor: pointer; font-size: 13px;
+  color: var(--muted); padding: 12px 16px; border-radius: 6px;
+  cursor: pointer; font-size: 14px; min-height: 44px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -174,9 +175,9 @@ svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none
    ═══════════════════════════════════════════════════════════ */
 /* -- Tooltip -- */
 .gg-tooltip {
-  position: absolute; pointer-events: none; padding: 8px 10px;
+  position: absolute; pointer-events: none; padding: 10px 12px;
   border-radius: 8px; background: var(--tooltip-bg); color: var(--fg);
-  font-size: 13px; border: 1px solid var(--border);
+  font-size: 14px; border: 1px solid var(--border);
   transform: translate(-50%, -110%); white-space: nowrap; z-index: 40;
   box-shadow: 0 6px 30px rgba(2,6,23,0.6);
   opacity: 0; transition: opacity 120ms ease, transform 120ms ease;
@@ -191,8 +192,8 @@ svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none
 .formulas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; }
 .collapse-btn {
   background: transparent; border: 1px solid var(--border);
-  color: var(--muted); padding: 6px 10px; border-radius: 6px;
-  cursor: pointer; font-size: 13px; flex-shrink: 0;
+  color: var(--muted); padding: 10px 14px; border-radius: 6px;
+  cursor: pointer; font-size: 14px; flex-shrink: 0; min-height: 40px;
 }
 .formulas.collapsed .formulas-body { display: none; }
 
@@ -245,24 +246,26 @@ body.light svg.focused rect.gg-rect:not(.active) {
    ═══════════════════════════════════════════════════════════ */
 /* -- Mobile (<=520px) -- */
 @media (max-width: 520px) {
-  body { padding: 10px 8px 32px; }
+  body { padding: 10px 8px 32px; font-size: 16px; }
   .container { padding: 14px; border-radius: 8px; }
   .mobile-header { display: flex; }
-  h1 { font-size: 17px; }
-  label { flex-direction: column; align-items: stretch; gap: 6px; }
+  h1 { font-size: 20px; }
+  label { font-size: 16px; }
   label .ion-label { font-weight: 700; }
-  input[type="number"] { width: 100%; }
-  .unit-select { margin-left: 0; align-self: flex-start; }
-  /* visible mobile sliders */
-  .picker { display: block; width: 100%; margin-top: 8px; }
+  input[type="number"] { width: 100%; font-size: 16px; }
+  .unit-select { margin-left: 0; align-self: flex-start; font-size: 14px; }
+  /* visible mobile pickers */
+  .picker { display: block; width: 100%; margin-top: 8px; font-size: 16px; }
   .picker { -webkit-appearance: menulist-button; appearance: menulist-button; }
-  .picker:focus { outline: none; }
+  .picker:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   .results.compact dl { grid-template-columns: 1fr 110px; }
-  .results.compact dd { font-size: 15px; }
+  .results.compact dt { font-size: 16px; }
+  .results.compact dd { font-size: 18px; }
   .results-actions { justify-content: stretch; }
-  .results-actions button { flex: 1; text-align: center; }
-  .gg-legend .item { font-size: 13px; }
+  .results-actions button { flex: 1; text-align: center; font-size: 14px; }
+  .gg-legend .item { font-size: 14px; }
+  .small-note { font-size: 14px; }
 
   /* Mobile: make the Gamblegram canvas (SVG area) occupy
      ~66vh so the chart itself (excluding the legend) fills most
