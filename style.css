@@ -16,18 +16,18 @@
 
   /* Gamblegram palette — dark mode (default) */
   /* Cations (cool family) */
-  --gg-Na:    #9ad7ff; /* Na⁺ */
-  --gg-K:     #6fbcff; /* K⁺ */
-  --gg-iCa:   #73f0c8; /* iCa²⁺ */
-  --gg-Mg:    #cfcfff; /* Mg²⁺ */
+  --gg-Na:    #2DB7FF; /* Na⁺ */
+  --gg-K:     #17BEBB; /* K⁺ */
+  --gg-iCa:   #2ECC71; /* iCa²⁺ */
+  --gg-Mg:    #9B59B6; /* Mg²⁺ */
   /* Anions (warm/pastel family) */
-  --gg-Cl:     #ffb1b8; /* Cl⁻ */
-  --gg-Lactate:#fff2b8; /* Lactate⁻ */
-  --gg-HCO3:   #e6ffe8; /* HCO₃⁻ */
-  --gg-Aminus: #efe6ff; /* Albumin anionic contribution */
-  --gg-Pi:     #fff9d9; /* Phosphate */
+  --gg-Cl:     #FF6B6B; /* Cl⁻ */
+  --gg-Lactate:#FF9F1C; /* Lactate⁻ */
+  --gg-HCO3:   #FFE66D; /* HCO₃⁻ */
+  --gg-Aminus: #FFB6C1; /* Albumin anionic contribution */
+  --gg-Pi:     #FFDAB9; /* Phosphate */
   /* Unknown (distinct) */
-  --gg-Unknown:#a78bfa; /* Unknown / SIG */
+  --gg-Unknown:#000000; /* Unknown / SIG */
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -267,18 +267,18 @@ body.light {
 
   /* Gamblegram palette — light mode overrides */
   /* Cations (cool family) */
-  --gg-Na:    #60a5fa; /* Na⁺ */
-  --gg-K:     #3b82f6; /* K⁺ */
-  --gg-iCa:   #10b981; /* iCa²⁺ */
-  --gg-Mg:    #8b5cf6; /* Mg²⁺ */
+  --gg-Na:    #2DB7FF; /* Na⁺ */
+  --gg-K:     #17BEBB; /* K⁺ */
+  --gg-iCa:   #2ECC71; /* iCa²⁺ */
+  --gg-Mg:    #9B59B6; /* Mg²⁺ */
   /* Anions (warm/pastel family) */
-  --gg-Cl:     #fb7185; /* Cl⁻ */
-  --gg-Lactate:#fde68a; /* Lactate⁻ */
-  --gg-HCO3:   #bbf7d0; /* HCO₃⁻ */
-  --gg-Aminus: #f5d0fe; /* Albumin anionic contribution */
-  --gg-Pi:     #ffedd5; /* Phosphate */
+  --gg-Cl:     #FF6B6B; /* Cl⁻ */
+  --gg-Lactate:#FF9F1C; /* Lactate⁻ */
+  --gg-HCO3:   #FFE66D; /* HCO₃⁻ */
+  --gg-Aminus: #FFB6C1; /* Albumin anionic contribution */
+  --gg-Pi:     #FFDAB9; /* Phosphate */
   /* Unknown (distinct) */
-  --gg-Unknown:#7c3aed; /* Unknown / SIG */
+  --gg-Unknown:#000000; /* Unknown / SIG */
 }
 body.light .container {
   background: var(--card); color: var(--fg);
