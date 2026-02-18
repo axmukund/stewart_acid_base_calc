@@ -172,7 +172,7 @@ function renderGamblegram(vals) {
     H = Math.round(W * 1.3);
   }
 
-  const barW   = Math.round(Math.max(40, W * 0.30));
+  const barW   = Math.round(Math.max(40, W * 0.38));
   const gap    = Math.max(8, Math.round(W * 0.02));
   const barsW  = 2 * barW + gap;
   const leftX  = Math.round((W - barsW) / 2);
