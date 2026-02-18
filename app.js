@@ -4,11 +4,11 @@
  * Implements the Stewart physicochemical approach to acid-base balance
  * using Figge / Fencl approximations for weak-acid charges.
  *
- * Core equations
+ * Core equations  (all in mEq/L)
  * ──────────────
- *   SIDa  = [Na⁺] + [K⁺] + [iCa²⁺] + [Mg²⁺] − [Cl⁻] − [Lactate⁻]
- *   A⁻    ≈ 0.123 × Alb(g/L) / (1 + 10^(7.08 − pH))
- *   Pi⁻   ≈ 0.309 × Phos(mmol/L) / (1 + 10^(6.8  − pH))
+ *   SIDa  = [Na⁺] + [K⁺] + 2[Ca²⁺] + 2[Mg²⁺] − [Cl⁻] − [Lactate⁻]
+ *   A⁻    ≈ Alb(g/L) × (0.123 × pH − 0.631)     (Watson / Figge–Fencl)
+ *   Pi⁻   ≈ Phos(mmol/L) × (0.309 × pH − 0.469) (Watson / Figge–Fencl)
  *   Atot  = 0.123 × Alb(g/L) + 0.309 × Phos(mmol/L)
  *   SIDe  = [HCO₃⁻] + A⁻ + Pi⁻
  *   SIG   = SIDa − SIDe
@@ -55,23 +55,29 @@ function hco3FromPHandPco2(pH, pCO2) {
 }
 
 /**
- * Figge / Fencl approximation — albumin charge (A⁻).
+ * Watson / Figge–Fencl linear approximation — albumin charge (A⁻).
+ *   A⁻ = Alb(g/L) × (0.123 × pH − 0.631)
+ * At pH 7.40, Alb 4.0 g/dL (40 g/L) → A⁻ ≈ 11.2 mEq/L.
+ *
  * @param {number} albGperL  Albumin in g/L
  * @param {number} pH        Arterial pH
- * @returns {number}         A⁻ in mmol/L
+ * @returns {number}         A⁻ in mEq/L
  */
 function albuminCharge(albGperL, pH) {
-  return 0.123 * albGperL / (1 + Math.pow(10, 7.08 - pH));
+  return albGperL * (0.123 * pH - 0.631);
 }
 
 /**
- * Figge / Fencl approximation — phosphate charge (Pi⁻).
+ * Watson / Figge–Fencl linear approximation — phosphate charge (Pi⁻).
+ *   Pi⁻ = Phos(mmol/L) × (0.309 × pH − 0.469)
+ * At pH 7.40, Phos 1.0 mmol/L → Pi⁻ ≈ 1.8 mEq/L.
+ *
  * @param {number} phos  Phosphate in mmol/L
  * @param {number} pH    Arterial pH
- * @returns {number}     Pi⁻ in mmol/L
+ * @returns {number}     Pi⁻ in mEq/L
  */
 function phosphateCharge(phos, pH) {
-  return 0.309 * phos / (1 + Math.pow(10, 6.8 - pH));
+  return phos * (0.309 * pH - 0.469);
 }
 
 /* =====================================================================
@@ -203,9 +209,9 @@ function computeAll() {
     HCO3 = hco3FromGas;
   }
 
-  /* ── Stewart core ── */
+  /* ── Stewart core (all in mEq/L — divalents carry 2× charge) ── */
   const sidA =
-    (Na || 0) + (K || 0) + (iCa || 0) + (Mg || 0)
+    (Na || 0) + (K || 0) + 2 * (iCa || 0) + 2 * (Mg || 0)
     - (Cl || 0) - (Lac || 0);
 
   // Albumin: g/dL → g/L for Figge formulas
@@ -225,31 +231,25 @@ function computeAll() {
   const sigR  = Math.round(sig  * 10) / 10;
 
   /* ── write results panel ── */
-  const showNonSI =
-    document.getElementById("show-non-si") &&
-    document.getElementById("show-non-si").checked;
-  const suffix = (v) =>
-    showNonSI ? " (" + v.toFixed(1) + " mEq/L)" : "";
-
-  el("res-sida").textContent = sidAR.toFixed(1) + " mmol/L" + suffix(sidAR);
-  el("res-side").textContent = sidER.toFixed(1) + " mmol/L" + suffix(sidER);
-  el("res-sig").textContent  = sigR.toFixed(1)  + " mmol/L" + suffix(sigR);
-  el("res-ag").textContent   = ag.toFixed(2)    + " mmol/L" + suffix(ag);
+  el("res-sida").textContent = sidAR.toFixed(1) + " mEq/L";
+  el("res-side").textContent = sidER.toFixed(1) + " mEq/L";
+  el("res-sig").textContent  = sigR.toFixed(1)  + " mEq/L";
+  el("res-ag").textContent   = ag.toFixed(2)    + " mEq/L";
 
   /* ── mobile header ── */
   const mhSida = el("mh-sida");
   const mhSide = el("mh-side");
   const mhSig  = el("mh-sig");
-  if (mhSida) mhSida.textContent = sidAR.toFixed(1) + " mmol/L";
-  if (mhSide) mhSide.textContent = sidER.toFixed(1) + " mmol/L";
-  if (mhSig)  mhSig.textContent  = sigR.toFixed(1)  + " mmol/L";
+  if (mhSida) mhSida.textContent = sidAR.toFixed(1) + " mEq/L";
+  if (mhSide) mhSide.textContent = sidER.toFixed(1) + " mEq/L";
+  if (mhSig)  mhSig.textContent  = sigR.toFixed(1)  + " mEq/L";
 
   /* ── extra result rows (if present) ── */
   const albEl  = el("res-alb");
   const piEl   = el("res-pi");
   const atotEl = el("res-atot");
-  if (albEl)  albEl.textContent  = albMinus.toFixed(3) + " mmol/L (A⁻)";
-  if (piEl)   piEl.textContent   = piMinus.toFixed(3)  + " mmol/L (Pi⁻)";
+  if (albEl)  albEl.textContent  = albMinus.toFixed(3) + " mEq/L (A⁻)";
+  if (piEl)   piEl.textContent   = piMinus.toFixed(3)  + " mEq/L (Pi⁻)";
   if (atotEl) atotEl.textContent =
     ((0.123 * (Number.isFinite(Alb_gL) ? Alb_gL : 0)) +
      (0.309 * (Phos || 0))).toFixed(3) + " mmol/L (Atot)";
@@ -261,10 +261,11 @@ function computeAll() {
     : Number.isFinite(hco3FromGas)      ? hco3FromGas
     :                                     (HCO3 || 0);
 
-  /* ── render ── */
+  /* ── render (Gamblegram uses mEq/L = charge equivalents) ── */
   renderGamblegram({
-    Na, K, iCa,
-    Mg_mmol: Number.isFinite(Mg) ? Mg : 0,
+    Na, K,
+    iCa: 2 * (iCa || 0),       // divalent → 2 mEq per mmol
+    Mg_mmol: 2 * (Number.isFinite(Mg) ? Mg : 0), // divalent → 2 mEq per mmol
     Cl, Lac,
     HCO3: ggHCO3,
     albMinus, piMinus,
@@ -325,12 +326,16 @@ function renderGamblegram(vals) {
   const piMinus  = vals.piMinus  || 0;
   const sig      = vals.sig      || 0;
 
-  /** Tooltip non-SI helper — returns a string or null. */
+  /**
+   * Tooltip non-SI helper — returns a string or null.
+   * iCa and Mg values in the Gamblegram are already 2× (mEq/L),
+   * so divide by 2 to recover mmol/L before unit conversion.
+   */
   const toNonSI = (k, v) => {
     if (!Number.isFinite(v)) return null;
     switch (k) {
-      case "Mg":      return (v / MG_FACTOR).toFixed(2)  + " mg/dL";
-      case "iCa":     return (v / CA_FACTOR).toFixed(2)  + " mg/dL";
+      case "Mg":      return ((v / 2) / MG_FACTOR).toFixed(2)  + " mg/dL";
+      case "iCa":     return ((v / 2) / CA_FACTOR).toFixed(2)  + " mg/dL";
       case "Pi-":     return (v / PO4_FACTOR).toFixed(2) + " mg/dL";
       case "Lactate": return (v / LAC_FACTOR).toFixed(2) + " mg/dL";
       case "Na": case "K": case "Cl": case "HCO3":
@@ -462,12 +467,12 @@ function renderGamblegram(vals) {
   sidLbl.setAttribute("dominant-baseline","middle");
   sidLbl.setAttribute("text-anchor",      "middle");
   sidLbl.setAttribute("font-size",        fSize);
-  sidLbl.textContent = "SID: " + diff.toFixed(1) + " mmol/L";
+  sidLbl.textContent = "SID: " + diff.toFixed(1) + " mEq/L";
   svg.appendChild(sidLbl);
 
   /* ── unknown label under chart ── */
-  if (sig >  0.0001) unknownEl.textContent = "Unknown anions: "  + sig.toFixed(1)           + " mmol/L";
-  else if (sig < -0.0001) unknownEl.textContent = "Unknown cations: " + Math.abs(sig).toFixed(1) + " mmol/L";
+  if (sig >  0.0001) unknownEl.textContent = "Unknown anions: "  + sig.toFixed(1)           + " mEq/L";
+  else if (sig < -0.0001) unknownEl.textContent = "Unknown cations: " + Math.abs(sig).toFixed(1) + " mEq/L";
   else unknownEl.textContent = "Unknown: none";
 
   /* ── legend ── */
@@ -479,7 +484,7 @@ function renderGamblegram(vals) {
   legend.innerHTML = items.map((it) =>
     '<div class="item"><span class="swatch" style="background:' + it.c +
     '"></span><span>' + htmlLabel(it.k) + " \u2014 " +
-    it.v.toFixed(2) + " mmol/L</span></div>"
+    it.v.toFixed(2) + " mEq/L</span></div>"
   ).join("");
 
   /* ── tooltips ── */
@@ -552,7 +557,7 @@ function renderGamblegram(vals) {
     tooltip.innerHTML =
       "<strong>" + htmlLabel(key) + "</strong>" +
       '<div style="font-weight:700;margin-top:4px">' +
-      val.toFixed(2) + " mmol/L</div>" + extra + nsLine;
+      val.toFixed(2) + " mEq/L</div>" + extra + nsLine;
 
     const cr = document.querySelector(".container").getBoundingClientRect();
     tooltip.style.left = Math.max(40, Math.min(cx - cr.left, cr.width - 40)) + "px";
@@ -745,8 +750,8 @@ const PICKER_DEFAULTS_SI = {
   na: 140.0,
   k: 4.0,
   ica: 1.20,
-  mg: 0.802,    // ≈ 1.95 mg/dL when unit is mg/dL
-  cl: 104.0,
+  mg: 0.50,     // ionized Mg (≈ 60 % of total serum Mg ≈ 0.85)
+  cl: 108.0,
   lac: 1.0,
   alb: 4.0,     // albumin (g/dL input is handled separately in parse)
   phos: 1.0
