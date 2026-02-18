@@ -172,28 +172,20 @@ function renderGamblegram(vals) {
     H = Math.round(W * 1.3);
   }
 
-  const barW   = Math.round(Math.max(40, W * 0.38));
+  // On mobile use narrower bars so labels beside them aren't clipped;
+  // on desktop use wider bars since there's more horizontal room.
+  const barFraction = isMobile ? 0.28 : 0.38;
+  const barW   = Math.round(Math.max(40, W * barFraction));
   const gap    = Math.max(8, Math.round(W * 0.02));
   const barsW  = 2 * barW + gap;
   const leftX  = Math.round((W - barsW) / 2);
   const rightX = leftX + barW + gap;
-  // Compute label font size from container width but cap it at the
-  // legend's computed font-size so large canvases don't produce
-  // oversized labels. Keep a sensible minimum for small screens.
-    // Compute label font size from multiple metrics so text scales
-    // sensibly with both width and height. We consider:
-    // - a width-derived size (`widthDerived`) for baseline scaling
-    // - the legend's computed font-size so SVG labels match the legend
-    // - a height-derived size (`fontFromH`) so tall canvases increase
-    //   label sizing without overflowing
-    const widthDerived = Math.round(W * 0.028);
-    const legendFont = (() => {
-      try { return parseFloat(getComputedStyle(legend).fontSize) || widthDerived; }
-      catch (e) { return widthDerived; }
-    })();
-  // Use the legend font-size directly so labels are always legible.
-  const fSize  = Math.round(legendFont);
-  const fSizeNum = fSize; // Store for collision detection
+
+  // Font size is in SVG coordinate-space units (viewBox), NOT CSS pixels.
+  // Scale it relative to the viewBox width so it looks proportional at
+  // every screen size. Clamp to a sensible range.
+  const fSize    = Math.max(12, Math.min(Math.round(W * 0.018), 24));
+  const fSizeNum = fSize;
   const baseY  = padTop + H;
 
   const sum      = (a) => a.reduce((s, x) => s + (x.v || 0), 0);
@@ -235,10 +227,11 @@ function renderGamblegram(vals) {
   const NS   = "http://www.w3.org/2000/svg";
   const anim = [];
 
-  // Track all label bounding boxes for collision detection
-  const labelBoxes = [];
+  // Track label positions per-column to avoid cross-column interference
+  const leftLabelBoxes  = [];
+  const rightLabelBoxes = [];
 
-  function addSeg(t, x, lx, anchor) {
+  function addSeg(t, x, lx, anchor, boxes) {
     const item = t.item;
     const prev = prevRects[item.k];
     const sH   = prev ? Math.max(4, prev.h) : 8;
@@ -260,15 +253,14 @@ function renderGamblegram(vals) {
 
     // Compute label position; adjust vertically if it collides with previous labels
     let labelY = sY + sH / 2;
-    const labelHeight = fSizeNum * 1.2; // estimate text height with line-height
+    const labelHeight = fSizeNum * 1.2; // estimate text height
     const labelHalfH = labelHeight / 2;
 
-    // Check for collisions with existing labels; shift down if needed
-    for (const box of labelBoxes) {
-      const gap = 4; // minimum gap between labels
-      if (Math.abs(labelY - box.y) < labelHalfH + box.h / 2 + gap) {
-        // Collision detected; move down
-        labelY = box.y + box.h / 2 + labelHalfH + gap;
+    // Check for collisions with existing labels in this column; shift down
+    for (const box of boxes) {
+      const spacing = 2;
+      if (Math.abs(labelY - box.y) < labelHalfH + box.h / 2 + spacing) {
+        labelY = box.y + box.h / 2 + labelHalfH + spacing;
       }
     }
 
@@ -282,14 +274,12 @@ function renderGamblegram(vals) {
     text.textContent = svgLabel(item.k) + " " + item.v.toFixed(2);
     svg.appendChild(text);
 
-    // Record this label's bounding box for future collision checks
-    labelBoxes.push({ y: labelY, h: labelHeight });
-
+    boxes.push({ y: labelY, h: labelHeight });
     anim.push({ rect, text, sY, sH, ty: t.ty, th: t.th });
   }
 
-  cT.forEach((t) => addSeg(t, leftX,  leftX - 12,        "end"));
-  aT.forEach((t) => addSeg(t, rightX, rightX + barW + 12, "start"));
+  cT.forEach((t) => addSeg(t, leftX,  leftX - 12,        "end",   leftLabelBoxes));
+  aT.forEach((t) => addSeg(t, rightX, rightX + barW + 12, "start", rightLabelBoxes));
 
   /* ── "Unknown" label under chart ── */
   if (sig >  0.0001)      unknownEl.textContent = "Unknown anions: "  + sig.toFixed(1)           + " mEq/L";
