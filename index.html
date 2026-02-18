@@ -139,14 +139,59 @@
             <button id="toggle-formulas" aria-expanded="false" class="collapse-btn">Show</button>
           </div>
           <div class="formulas-body math">\[\begin{aligned}
-            \mathrm{SID_a} &= [\mathrm{Na}^+] + [\mathrm{K}^+] + [\mathrm{iCa}^{2+}] + [\mathrm{Mg}^{2+}] - [\mathrm{Cl}^-] - [\mathrm{Lactate}^-] \\[6pt]
-            A^- &\approx \dfrac{0.123\times(10\times\mathrm{Alb}_{\mathrm{g/dL}})}{1+10^{7.08-\mathrm{pH}}}\\[6pt]
-            \mathrm{Pi}^- &\approx \dfrac{0.309\times[\mathrm{Phosphate}\ (mmol/L)]}{1+10^{6.8-\mathrm{pH}}}\\[6pt]
-            \mathrm{Atot} &= 0.123\times[\mathrm{Alb}\ (g/L)] + 0.309\times[\mathrm{Phosphate}\ (mmol/L)]\\[6pt]
-            \mathrm{SID_e} &= [\mathrm{HCO}_3^-] + A^- + \mathrm{Pi}^- \\\Rightarrow\quad \mathrm{SIG} &= \mathrm{SID_a} - \mathrm{SID_e}\\[6pt]
-            \mathrm{HCO}_3^-\ (from\ blood\ gas) &\approx 0.03\times pCO_2\times 10^{\mathrm{pH}-6.1}
+            \mathrm{SID_a} &= [\mathrm{Na}^+] + [\mathrm{K}^+] + 2[\mathrm{Ca}^{2+}] + 2[\mathrm{Mg}^{2+}] - [\mathrm{Cl}^-] - [\mathrm{Lactate}^-] \\[8pt]
+            A^- &= -\,\frac{[\mathrm{Alb}]_{g/L}}{66.5}\;\sum_i \frac{n_i\,(\pm 1)}{1+10^{\,\pm(pK_{a,i}\,-\,\mathrm{pH})}}
+            \quad\text{(Figge–Fencl v3.0)}\\[8pt]
+            \mathrm{Pi}^- &= [\mathrm{PO_4}]\;\frac{K_1[\mathrm{H}^+]^2 + 2K_1K_2[\mathrm{H}^+] + 3K_1K_2K_3}{[\mathrm{H}^+]^3 + K_1[\mathrm{H}^+]^2 + K_1K_2[\mathrm{H}^+] + K_1K_2K_3}\\[8pt]
+            \mathrm{SID_e} &= [\mathrm{HCO}_3^-] + A^- + \mathrm{Pi}^- \\[4pt]
+            \mathrm{SIG} &= \mathrm{SID_a} - \mathrm{SID_e}\\[8pt]
+            [\mathrm{HCO}_3^-] &= 0.03\times pCO_2\times 10^{\,\mathrm{pH}\,-\,6.1}
+            \quad\text{(Henderson–Hasselbalch)}
           \end{aligned}\]</div>
         </section>
+      </section>
+
+      <!-- ── References ── -->
+      <section class="references">
+        <h3>References</h3>
+        <ol>
+          <li id="ref-1">
+            Figge J, Mydosh T, Fencl V.
+            <cite>Serum proteins and acid-base equilibria: a follow-up.</cite>
+            J Lab Clin Med. 1992;120(5):713-719.
+            <a href="https://pubmed.ncbi.nlm.nih.gov/1431500/" target="_blank" rel="noopener">PubMed&nbsp;1431500</a>
+          </li>
+          <li id="ref-2">
+            Figge J.
+            <cite>Figge-Fencl quantitative physicochemical model of human acid-base physiology (v3.0).</cite>
+            2003–2013.
+            <a href="https://web.archive.org/web/20160327122156/http://figge-fencl.org/model.html" target="_blank" rel="noopener">figge-fencl.org (archived)</a>
+          </li>
+          <li id="ref-3">
+            Stewart PA.
+            <cite>Modern quantitative acid-base chemistry.</cite>
+            Can J Physiol Pharmacol. 1983;61(12):1444-1461.
+            <a href="https://pubmed.ncbi.nlm.nih.gov/6423247/" target="_blank" rel="noopener">PubMed&nbsp;6423247</a>
+          </li>
+          <li id="ref-4">
+            Kellum JA.
+            <cite>Clinical review: reunification of acid-base physiology.</cite>
+            Crit Care. 2005;9(5):500-507.
+            <a href="https://pubmed.ncbi.nlm.nih.gov/16277737/" target="_blank" rel="noopener">PubMed&nbsp;16277737</a>
+          </li>
+          <li id="ref-5">
+            Sendroy J Jr, Hastings AB.
+            <cite>Studies of the solubility of calcium salts. III.</cite>
+            J Biol Chem. 1927;71:797-823.
+            (Phosphoric acid apparent dissociation constants for plasma, 37 °C)
+          </li>
+          <li id="ref-6">
+            Fencl V, Jabor A, Kazda A, Figge J.
+            <cite>Diagnosis of metabolic acid-base disturbances in critically ill patients.</cite>
+            Am J Respir Crit Care Med. 2000;162(6):2246-2251.
+            <a href="https://pubmed.ncbi.nlm.nih.gov/11112147/" target="_blank" rel="noopener">PubMed&nbsp;11112147</a>
+          </li>
+        </ol>
       </section>
 
       <!-- ── Footer ── -->
@@ -158,8 +203,15 @@
       <div id="gg-tooltip" class="gg-tooltip" role="tooltip" aria-hidden="true"></div>
     </main>
 
-    <!-- ── Application logic ── -->
-    <script src="./app.js"></script>
+    <!-- ── Application logic (load order matters — no ES modules) ── -->
+    <script src="./js/helpers.js"></script>
+    <script src="./js/physiology.js"></script>
+    <script src="./js/units.js"></script>
+    <script src="./js/gamblegram.js"></script>
+    <script src="./js/export.js"></script>
+    <script src="./js/compute.js"></script>
+    <script src="./js/pickers.js"></script>
+    <script src="./js/events.js"></script>
     <!-- MathJax — renders the LaTeX formulas panel -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   </body>

@@ -248,3 +248,12 @@ body.light input[type="number"] { color: var(--fg); }
 body.light input::placeholder { color: #9ca3af; }
 body.light .gg-legend .swatch { border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
 body.light .gg-tooltip { color: #111; }
+
+/* ── References section ── */
+.references { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.references h3 { font-size: 0.95rem; margin: 0 0 0.6rem; color: var(--accent); }
+.references ol { padding-left: 1.4rem; margin: 0; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.references li + li { margin-top: 0.35rem; }
+.references cite { font-style: italic; }
+.references a { color: var(--accent); text-decoration: none; }
+.references a:hover { text-decoration: underline; }
