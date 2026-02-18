@@ -192,14 +192,24 @@ svg rect.gg-rect:hover, svg rect.gg-rect:focus {
 }
 
 /* Focused mode: dim / hollow out all regions except the active one */
-svg.focused rect.gg-rect { fill-opacity: 0.12; opacity: 0.6; filter: grayscale(40%); }
+svg.focused rect.gg-rect { /* when any segment selected, switch to focused mode */ fill-opacity: 1; opacity: 1; filter: none; }
 svg.focused rect.gg-rect:not(.active) {
-  /* visually "hollow" non-active segments */
-  fill-opacity: 0.06; stroke: rgba(255,255,255,0.06); stroke-width: 1; opacity: 0.7;
-  transform: none; filter: none;
+  /* non-active segments: keep a faint tint + thicker outline so the original colors remain readable */
+  fill-opacity: 0.12; /* faint colour hint */
+  stroke: rgba(255,255,255,0.24); /* stronger outline on dark theme */
+  stroke-width: 2; /* thicker outline for visibility */
+  opacity: 0.98;
+  transform: none; filter: none; transition: stroke 160ms ease, fill-opacity 160ms ease, opacity 160ms ease;
 }
 svg rect.gg-rect.active {
-  transform: translateY(-4px); filter: brightness(1.04); stroke: rgba(0,0,0,0.12); stroke-width: 1.4; opacity: 1;
+  /* active segment is visually emphasized and remains filled */
+  transform: translateY(-4px); filter: brightness(1.04); stroke: rgba(0,0,0,0.12); stroke-width: 1.6; opacity: 1; fill-opacity: 0.95;
+}
+
+/* Slightly different outline on light theme for better contrast */
+body.light svg.focused rect.gg-rect:not(.active) {
+  stroke: rgba(0,0,0,0.18);
+  stroke-width: 1.6;
 }
 
 
