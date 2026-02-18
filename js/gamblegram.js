@@ -191,14 +191,9 @@ function renderGamblegram(vals) {
       try { return parseFloat(getComputedStyle(legend).fontSize) || widthDerived; }
       catch (e) { return widthDerived; }
     })();
-    // Derive a font size from chart height and bar width; clamp to sensible
-    // bounds so text remains legible but doesn't dominate the chart.
-    const fontFromH = Math.max(10, Math.min(Math.round(H * 0.035), Math.round(barW * 0.12)));
-    // Prefer a legible size: pick the largest of height-derived and a
-    // slightly reduced legend font, but never exceed the legend font.
-    // Ensure a practical minimum for small screens.
-    const prefer = Math.max(fontFromH, Math.round(legendFont * 0.9), Math.round(widthDerived * 0.8));
-    const fSize  = Math.max(12, Math.min(prefer, Math.round(legendFont)));
+  // Use the legend font-size directly so labels are always legible.
+  const fSize  = Math.round(legendFont);
+  const fSizeNum = fSize; // Store for collision detection
   const baseY  = padTop + H;
 
   const sum      = (a) => a.reduce((s, x) => s + (x.v || 0), 0);
@@ -240,6 +235,9 @@ function renderGamblegram(vals) {
   const NS   = "http://www.w3.org/2000/svg";
   const anim = [];
 
+  // Track all label bounding boxes for collision detection
+  const labelBoxes = [];
+
   function addSeg(t, x, lx, anchor) {
     const item = t.item;
     const prev = prevRects[item.k];
@@ -260,15 +258,32 @@ function renderGamblegram(vals) {
     rect.dataset.val = (item.v || 0).toFixed(2);
     svg.appendChild(rect);
 
+    // Compute label position; adjust vertically if it collides with previous labels
+    let labelY = sY + sH / 2;
+    const labelHeight = fSizeNum * 1.2; // estimate text height with line-height
+    const labelHalfH = labelHeight / 2;
+
+    // Check for collisions with existing labels; shift down if needed
+    for (const box of labelBoxes) {
+      const gap = 4; // minimum gap between labels
+      if (Math.abs(labelY - box.y) < labelHalfH + box.h / 2 + gap) {
+        // Collision detected; move down
+        labelY = box.y + box.h / 2 + labelHalfH + gap;
+      }
+    }
+
     const text = document.createElementNS(NS, "text");
     text.classList.add("gg-name");
     text.setAttribute("x",                lx);
-    text.setAttribute("y",                sY + sH / 2);
+    text.setAttribute("y",                labelY);
     text.setAttribute("dominant-baseline","middle");
     text.setAttribute("text-anchor",      anchor);
     text.setAttribute("font-size",        fSize);
     text.textContent = svgLabel(item.k) + " " + item.v.toFixed(2);
     svg.appendChild(text);
+
+    // Record this label's bounding box for future collision checks
+    labelBoxes.push({ y: labelY, h: labelHeight });
 
     anim.push({ rect, text, sY, sH, ty: t.ty, th: t.th });
   }
