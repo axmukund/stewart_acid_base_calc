@@ -182,9 +182,11 @@ function renderGamblegram(vals) {
   const rightX = leftX + barW + gap;
 
   // Font size is in SVG coordinate-space units (viewBox), NOT CSS pixels.
-  // Scale it relative to the viewBox width so it looks proportional at
-  // every screen size. Clamp to a sensible range.
-  const fSize    = Math.max(12, Math.min(Math.round(W * 0.018), 24));
+  // Use separate scaling for mobile vs desktop so labels remain legible
+  // at large desktop sizes without becoming oversized on narrow screens.
+  const fSize = isMobile
+    ? Math.max(12, Math.min(Math.round(W * 0.030), 16))
+    : Math.max(18, Math.min(Math.round(W * 0.030), 34));
   const fSizeNum = fSize;
   const baseY  = padTop + H;
 
@@ -278,8 +280,9 @@ function renderGamblegram(vals) {
     anim.push({ rect, text, sY, sH, ty: t.ty, th: t.th });
   }
 
-  cT.forEach((t) => addSeg(t, leftX,  leftX - 12,        "end",   leftLabelBoxes));
-  aT.forEach((t) => addSeg(t, rightX, rightX + barW + 12, "start", rightLabelBoxes));
+  const labelPad = Math.max(12, Math.round(fSize * 0.85));
+  cT.forEach((t) => addSeg(t, leftX,  leftX - labelPad,          "end",   leftLabelBoxes));
+  aT.forEach((t) => addSeg(t, rightX, rightX + barW + labelPad,  "start", rightLabelBoxes));
 
   /* ── "Unknown" label under chart ── */
   if (sig >  0.0001)      unknownEl.textContent = "Unknown anions: "  + sig.toFixed(1)           + " mEq/L";
