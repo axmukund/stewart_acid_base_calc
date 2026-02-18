@@ -757,41 +757,40 @@ function populatePicker(cfg) {
   // `num` may be a hidden/removed numeric input or the picker itself — accept either
   const num = el(cfg.id) || sel;
   if (!sel) return;
+
+  // Snapshot current display-value BEFORE clearing so we can restore it on
+  // unit-change repopulation.  On first call sel.value is "" → NaN → use defaults.
+  const unitEl   = document.getElementById(cfg.id + '-unit');
+  const unit     = unitEl ? unitEl.value : 'si';
+  const prevDisp = parseFloat(sel.value);                        // NaN when empty
+  const prevSI   = Number.isFinite(prevDisp)
+    ? displayToSI(cfg.id, prevDisp, unit) : NaN;
+
+  // Determine what to show: the preserved SI value (unit-change) or the clinical default
+  const targetSI = Number.isFinite(prevSI) ? prevSI : PICKER_DEFAULTS_SI[cfg.id];
+
   sel.innerHTML = '';
   const steps = Math.round((cfg.max - cfg.min) / cfg.step);
-  const unitEl = document.getElementById(cfg.id + '-unit');
-  const unit = unitEl ? unitEl.value : 'si';
   for (let i = 0; i <= steps; i++) {
-    const vSI = cfg.min + i * cfg.step; // base value in SI
-    const displayV = unit === 'si' ? vSI : siToDisplay(cfg.id, vSI, unit);
-    const label = Number(displayV).toFixed(cfg.decimals);
-    const opt = document.createElement('option');
+    const vSI      = cfg.min + i * cfg.step;
+    const displayV = (unit === 'si') ? vSI : siToDisplay(cfg.id, vSI, unit);
+    const label    = Number(displayV).toFixed(cfg.decimals);
+    const opt      = document.createElement('option');
     opt.value = label; opt.textContent = label;
     sel.appendChild(opt);
   }
-  // ensure the picker shows the current numeric/display value (or append it)
-  const cur = parse(cfg.id);
-  if (Number.isFinite(cur)) {
-    const want = Number(cur).toFixed(cfg.decimals);
+
+  // Apply target value; append as an extra option if it falls outside the range
+  if (targetSI !== undefined && Number.isFinite(targetSI)) {
+    const displayTarget = (unit === 'si') ? targetSI : siToDisplay(cfg.id, targetSI, unit);
+    const want = Number(displayTarget).toFixed(cfg.decimals);
     if (!Array.from(sel.options).some(o => o.value === want)) {
       const extra = document.createElement('option');
-      extra.value = want; extra.textContent = want; sel.appendChild(extra);
+      extra.value = want; extra.textContent = want;
+      sel.appendChild(extra);
     }
     sel.value = want;
-  } else {
-    // no value entered — use clinically-typical default (SI stored in PICKER_DEFAULTS_SI)
-    const defSI = PICKER_DEFAULTS_SI[cfg.id];
-    if (defSI !== undefined) {
-      const displayDef = (unit === 'si') ? defSI : siToDisplay(cfg.id, defSI, unit);
-      const want = Number(displayDef).toFixed(cfg.decimals);
-      if (!Array.from(sel.options).some(o => o.value === want)) {
-        const extra = document.createElement('option');
-        extra.value = want; extra.textContent = want; sel.appendChild(extra);
-      }
-      sel.value = want;
-      // make sure any linked numeric input (if present) also reflects the default
-      if (num && num !== sel) num.value = want;
-    }
+    if (num && num !== sel) num.value = want;
   }
 
   sel.addEventListener('change', (e) => {
