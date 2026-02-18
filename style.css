@@ -157,7 +157,7 @@ select.unit-select option { color: inherit; }
   border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);
 }
 .gamblegram h2 { margin: 0 0 8px; color: var(--accent); }
-.gg-canvas { display: flex; justify-content: center; align-items: flex-start; }
+.gg-canvas { display: flex; justify-content: center; align-items: flex-start; height: 66vh; max-height: 66vh; }
 svg#gg-svg { width: 100%; height: auto; display: block; transition: opacity 240ms ease; touch-action: none; }
 svg text.gg-val { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
 svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
@@ -266,12 +266,6 @@ body.light svg.focused rect.gg-rect:not(.active) {
   .results-actions button { flex: 1; text-align: center; font-size: 14px; }
   .gg-legend .item { font-size: 14px; }
   .small-note { font-size: 14px; }
-
-  /* Mobile: make the Gamblegram canvas (SVG area) occupy
-     ~66vh so the chart itself (excluding the legend) fills most
-     of the screen height. The legend/metadata remain below. */
-  .gg-canvas { align-items: center; height: 66vh; max-height: 66vh; }
-  svg#gg-svg { width: auto; height: 100%; max-width: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════
