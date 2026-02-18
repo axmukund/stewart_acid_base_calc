@@ -180,12 +180,21 @@ function renderGamblegram(vals) {
   // Compute label font size from container width but cap it at the
   // legend's computed font-size so large canvases don't produce
   // oversized labels. Keep a sensible minimum for small screens.
-  const widthDerived = Math.round(W * 0.028);
-  const legendFont = (() => {
-    try { return parseFloat(getComputedStyle(legend).fontSize) || widthDerived; }
-    catch (e) { return widthDerived; }
-  })();
-  const fSize  = Math.max(10, Math.min(widthDerived, Math.round(legendFont)));
+    // Compute label font size from multiple metrics so text scales
+    // sensibly with both width and height. We consider:
+    // - a width-derived size (`widthDerived`) for baseline scaling
+    // - the legend's computed font-size so SVG labels match the legend
+    // - a height-derived size (`fontFromH`) so tall canvases increase
+    //   label sizing without overflowing
+    const widthDerived = Math.round(W * 0.028);
+    const legendFont = (() => {
+      try { return parseFloat(getComputedStyle(legend).fontSize) || widthDerived; }
+      catch (e) { return widthDerived; }
+    })();
+    // Derive a font size from chart height and bar width; clamp to sensible
+    // bounds so text remains legible but doesn't dominate the chart.
+    const fontFromH = Math.max(10, Math.min(Math.round(H * 0.035), Math.round(barW * 0.12)));
+    const fSize  = Math.max(10, Math.min(widthDerived, Math.round(legendFont), fontFromH));
   const baseY  = padTop + H;
 
   const sum      = (a) => a.reduce((s, x) => s + (x.v || 0), 0);
