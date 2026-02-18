@@ -194,7 +194,11 @@ function renderGamblegram(vals) {
     // Derive a font size from chart height and bar width; clamp to sensible
     // bounds so text remains legible but doesn't dominate the chart.
     const fontFromH = Math.max(10, Math.min(Math.round(H * 0.035), Math.round(barW * 0.12)));
-    const fSize  = Math.max(10, Math.min(widthDerived, Math.round(legendFont), fontFromH));
+    // Prefer a legible size: pick the largest of height-derived and a
+    // slightly reduced legend font, but never exceed the legend font.
+    // Ensure a practical minimum for small screens.
+    const prefer = Math.max(fontFromH, Math.round(legendFont * 0.9), Math.round(widthDerived * 0.8));
+    const fSize  = Math.max(12, Math.min(prefer, Math.round(legendFont)));
   const baseY  = padTop + H;
 
   const sum      = (a) => a.reduce((s, x) => s + (x.v || 0), 0);
