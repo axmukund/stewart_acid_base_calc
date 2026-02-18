@@ -737,6 +737,18 @@ const PICKER_CONFIG = [
   { id: 'phos', min: 0.00, max: 10.00, step: 0.1, decimals: 1 },
 ];
 
+// Clinically typical defaults (SI units: mmol/L except albumin g/dL)
+const PICKER_DEFAULTS_SI = {
+  na: 140.0,
+  k: 4.0,
+  ica: 1.20,
+  mg: 0.802,    // ≈ 1.95 mg/dL when unit is mg/dL
+  cl: 104.0,
+  lac: 1.0,
+  alb: 4.0,     // albumin (g/dL input is handled separately in parse)
+  phos: 1.0
+};
+
 function populatePicker(cfg) {
   const sel = document.getElementById(cfg.id + '-picker');
   // `num` may be a hidden/removed numeric input or the picker itself — accept either
@@ -763,6 +775,20 @@ function populatePicker(cfg) {
       extra.value = want; extra.textContent = want; sel.appendChild(extra);
     }
     sel.value = want;
+  } else {
+    // no value entered — use clinically-typical default (SI stored in PICKER_DEFAULTS_SI)
+    const defSI = PICKER_DEFAULTS_SI[cfg.id];
+    if (defSI !== undefined) {
+      const displayDef = (unit === 'si') ? defSI : siToDisplay(cfg.id, defSI, unit);
+      const want = Number(displayDef).toFixed(cfg.decimals);
+      if (!Array.from(sel.options).some(o => o.value === want)) {
+        const extra = document.createElement('option');
+        extra.value = want; extra.textContent = want; sel.appendChild(extra);
+      }
+      sel.value = want;
+      // make sure any linked numeric input (if present) also reflects the default
+      if (num && num !== sel) num.value = want;
+    }
   }
 
   sel.addEventListener('change', (e) => {
