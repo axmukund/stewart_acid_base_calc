@@ -724,20 +724,69 @@ document.querySelectorAll("select.unit-select").forEach((sel) => {
   });
 });
 
-// Mobile-friendly range sliders: keep range and numeric inputs in sync
-document.querySelectorAll("input.ion-range").forEach(range => {
-  const id = range.id.replace('-range','');
-  const num = document.getElementById(id);
-  if (!num) return;
-  // initialise the slider from the numeric input
-  if (num.value) range.value = num.value;
-  range.addEventListener('input', (e) => {
+// Native select pickers: populate and keep pickers in sync with numeric inputs
+const PICKER_CONFIG = [
+  { id: 'na',   min: 110, max: 160, step: 1,    decimals: 0 },
+  { id: 'k',    min: 2.0, max: 6.0, step: 0.1,  decimals: 1 },
+  { id: 'ica',  min: 0.80, max: 1.60, step: 0.01, decimals: 2 },
+  { id: 'mg',   min: 1.00, max: 3.00, step: 0.01, decimals: 2 },
+  { id: 'cl',   min: 80,  max: 140, step: 1,    decimals: 0 },
+  { id: 'lac',  min: 0.0, max: 10.0, step: 0.1, decimals: 1 },
+  { id: 'alb',  min: 1.0, max: 6.0, step: 0.1, decimals: 1 },
+  { id: 'phos', min: 0.2, max: 5.0, step: 0.1, decimals: 1 },
+];
+
+function populatePicker(cfg) {
+  const sel = document.getElementById(cfg.id + '-picker');
+  const num = document.getElementById(cfg.id);
+  if (!sel || !num) return;
+  sel.innerHTML = '';
+  const steps = Math.round((cfg.max - cfg.min) / cfg.step);
+  for (let i = 0; i <= steps; i++) {
+    const v = cfg.min + i * cfg.step;
+    const label = v.toFixed(cfg.decimals);
+    const opt = document.createElement('option');
+    opt.value = label; opt.textContent = label;
+    sel.appendChild(opt);
+  }
+  // ensure the picker shows the current numeric value (or the nearest option)
+  const cur = parseFloat(num.value);
+  if (Number.isFinite(cur)) {
+    const want = cur.toFixed(cfg.decimals);
+    if (!Array.from(sel.options).some(o => o.value === want)) {
+      const extra = document.createElement('option');
+      extra.value = want; extra.textContent = want; sel.appendChild(extra);
+    }
+    sel.value = want;
+  }
+
+  sel.addEventListener('change', (e) => {
     num.value = e.target.value;
-    // trigger existing input handlers (debounced computeAll will run)
     num.dispatchEvent(new Event('input', { bubbles: true }));
   });
-  // typing in the numeric field keeps the slider in sync
-  num.addEventListener('input', () => { if (range.value !== String(num.value)) range.value = num.value; });
+
+  num.addEventListener('input', () => {
+    const v = parseFloat(num.value);
+    if (!Number.isFinite(v)) return;
+    const s = v.toFixed(cfg.decimals);
+    if (!Array.from(sel.options).some(o => o.value === s)) {
+      const extra = document.createElement('option');
+      extra.value = s; extra.textContent = s; sel.appendChild(extra);
+    }
+    sel.value = s;
+  });
+}
+
+// populate all pickers on load
+PICKER_CONFIG.forEach(populatePicker);
+
+// when units change, repopulate the matching picker so the scale/labels still match the displayed unit
+document.querySelectorAll('select.unit-select').forEach(s => {
+  s.addEventListener('change', (ev) => {
+    const ion = s.id.replace('-unit','');
+    const cfg = PICKER_CONFIG.find(c => c.id === ion);
+    if (cfg) populatePicker(cfg);
+  });
 });
 
 /* ── BUG FIX: recompute on window resize so the SVG re-measures

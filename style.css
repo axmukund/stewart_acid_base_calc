@@ -71,8 +71,8 @@ input[type="number"] {
   padding: 6px 8px; border-radius: 6px; color: inherit; text-align: right;
 }
 input[disabled] { background: rgba(255,255,255,0.01); color: var(--muted); cursor: not-allowed; }
-/* slider controls: visible on all viewports (desktop + mobile) */
-.ion-range { display: block; }
+/* native select pickers (replace sliders) */
+.picker { display: inline-block; min-width: 120px; margin-left: 8px; }
 
 
 .ion-label { white-space: nowrap; display: inline-block; font-weight: 600; }
@@ -205,9 +205,9 @@ svg rect.gg-rect:hover, svg rect.gg-rect:focus {
   input[type="number"] { width: 100%; }
   .unit-select { margin-left: 0; align-self: flex-start; }
   /* visible mobile sliders */
-  .ion-range { display: block; width: 100%; margin-top: 8px; height: 28px; -webkit-appearance: none; appearance: none; }
-  .ion-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
-  .ion-range:focus { outline: none; }
+  .picker { display: block; width: 100%; margin-top: 8px; }
+  .picker { -webkit-appearance: menulist-button; appearance: menulist-button; }
+  .picker:focus { outline: none; }
 
   .results.compact dl { grid-template-columns: 1fr 110px; }
   .results.compact dd { font-size: 15px; }
