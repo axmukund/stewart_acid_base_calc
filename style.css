@@ -27,7 +27,7 @@
   --gg-Aminus: #F4B183; /* Albumin anionic contribution */
   --gg-Pi:     #F7E0A0; /* Phosphate */
   /* Unknown (distinct) */
-  --gg-Unknown:#000000; /* Unknown / SIG */
+  --gg-Unknown: #B347FF; /* Unknown / SIG (neon purple) */
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -221,11 +221,12 @@ svg rect.gg-rect.active {
   transform: translateY(-4px); filter: brightness(1.04); stroke: rgba(0,0,0,0.12); stroke-width: 1.6; opacity: 1; fill-opacity: 0.95;
 }
 
-/* Unknown segment: make visually distinct (thick gold outline + drop shadow) */
+/* Unknown segment: make visually distinct (neon‑purple accent + glow) */
 svg rect.gg-rect[data-key="Unknown"] {
-  stroke: #FFD400; /* gold outline */
-  stroke-width: 2.4; 
-  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.6));
+  stroke: var(--gg-Unknown);
+  stroke-width: 2.8;
+  /* soft glow matching the neon accent */
+  filter: drop-shadow(0 8px 18px rgba(179,71,255,0.20)) drop-shadow(0 0 8px rgba(179,71,255,0.12));
 }
 
 /* Slightly different outline on light theme for better contrast */
@@ -285,7 +286,7 @@ body.light {
   --gg-Aminus: #F4B183; /* Albumin anionic contribution */
   --gg-Pi:     #F7E0A0; /* Phosphate */
   /* Unknown (distinct) */
-  --gg-Unknown:#000000; /* Unknown / SIG */
+  --gg-Unknown: #B347FF; /* Unknown / SIG (neon purple) */
 }
 body.light .container {
   background: var(--card); color: var(--fg);

@@ -121,7 +121,7 @@ function renderGamblegram(vals) {
   ];
 
   // SIG → "Unknown" segment at the top of the shorter column
-  const UNKNOWN_CLR = "#A78BFA";
+  const UNKNOWN_CLR = cssColor("Unknown", "#B347FF");
   if (sig >  0.0001) anions.push({  k: "Unknown", v: sig,           c: UNKNOWN_CLR });
   if (sig < -0.0001) cations.push({ k: "Unknown", v: Math.abs(sig), c: UNKNOWN_CLR });
 
