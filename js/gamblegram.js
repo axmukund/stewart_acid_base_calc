@@ -326,6 +326,25 @@ function renderGamblegram(vals) {
       });
     });
 
+    // Delegate pointerdown on the SVG to the underlying rect when
+    // the initial target is not itself a rect (e.g. the user tapped
+    // the label text). This fixes taps on mobile where text can
+    // otherwise intercept the touch.
+    svg.addEventListener('pointerdown', (ev) => {
+      // If the target is already a rect, let the per-rect handler run.
+      if (ev.target && ev.target.closest && ev.target.closest('rect.gg-rect')) return;
+      const elAt = document.elementFromPoint(ev.clientX, ev.clientY);
+      const rect = elAt && elAt.closest ? elAt.closest('rect.gg-rect') : null;
+      if (!rect) return;
+      if (rect.classList.contains('active')) {
+        hideTT(); clearActive();
+      } else {
+        setActiveRect(rect);
+        showTT(rect, ev.clientX, ev.clientY);
+      }
+      ev.preventDefault();
+    });
+
     // clicking / tapping outside the SVG clears any active selection
     document.addEventListener("pointerdown", (ev) => {
       if (!svg.contains(ev.target)) {

@@ -158,8 +158,8 @@ select.unit-select option { color: inherit; }
 .gamblegram h2 { margin: 0 0 8px; color: var(--accent); }
 .gg-canvas { display: flex; justify-content: center; align-items: flex-start; }
 svg#gg-svg { width: 100%; height: auto; display: block; transition: opacity 240ms ease; }
-svg text.gg-val { fill: var(--gg-label); font-weight: 400; }
-svg text.gg-name { fill: var(--gg-label); font-weight: 400; }
+svg text.gg-val { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
+svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
 .gg-info { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }
 .gg-legend { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 .gg-legend .item { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; line-height: 1.4; }
