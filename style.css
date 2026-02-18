@@ -157,7 +157,7 @@ select.unit-select option { color: inherit; }
 }
 .gamblegram h2 { margin: 0 0 8px; color: var(--accent); }
 .gg-canvas { display: flex; justify-content: center; align-items: flex-start; }
-svg#gg-svg { width: 100%; height: auto; display: block; transition: opacity 240ms ease; }
+svg#gg-svg { width: 100%; height: auto; display: block; transition: opacity 240ms ease; touch-action: none; }
 svg text.gg-val { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
 svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
 .gg-info { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }

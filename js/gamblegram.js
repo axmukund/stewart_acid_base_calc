@@ -247,19 +247,6 @@ function renderGamblegram(vals) {
   cT.forEach((t) => addSeg(t, leftX,  leftX - 12,        "end"));
   aT.forEach((t) => addSeg(t, rightX, rightX + barW + 12, "start"));
 
-  // Centered SID label between the two columns
-  const rawDiff = totalC - totalA;
-  const diff    = Math.abs(rawDiff) < 0.05 ? 0 : rawDiff;
-  const sidLbl  = document.createElementNS(NS, "text");
-  sidLbl.classList.add("gg-name");
-  sidLbl.setAttribute("x",                W / 2);
-  sidLbl.setAttribute("y",                padTop + 18);
-  sidLbl.setAttribute("dominant-baseline","middle");
-  sidLbl.setAttribute("text-anchor",      "middle");
-  sidLbl.setAttribute("font-size",        fSize);
-  sidLbl.textContent = "SID: " + diff.toFixed(1) + " mEq/L";
-  svg.appendChild(sidLbl);
-
   /* ── "Unknown" label under chart ── */
   if (sig >  0.0001)      unknownEl.textContent = "Unknown anions: "  + sig.toFixed(1)           + " mEq/L";
   else if (sig < -0.0001) unknownEl.textContent = "Unknown cations: " + Math.abs(sig).toFixed(1) + " mEq/L";
@@ -292,58 +279,63 @@ function renderGamblegram(vals) {
     };
 
     svg.querySelectorAll("rect.gg-rect").forEach((rect) => {
-      // pointerenter / pointermove work for mouse & touch (where supported)
+      // pointerenter / pointermove work for mouse & pen
       rect.addEventListener("pointerenter", (e) => {
+        if (e.pointerType === "touch") return; // handled by touchstart below
         setActiveRect(rect);
         showTT(rect, e.clientX, e.clientY);
       });
-      rect.addEventListener("pointermove", (e) => showTT(rect, e.clientX, e.clientY));
+      rect.addEventListener("pointermove", (e) => {
+        if (e.pointerType !== "touch") showTT(rect, e.clientX, e.clientY);
+      });
 
       // on leaving with a mouse pointer, hide + clear selection
       rect.addEventListener("pointerleave", (e) => {
+        if (e.pointerType === "touch") return;
         hideTT();
         if (e.pointerType === "mouse" || e.pointerType === "pen") clearActive();
       });
 
-      // keyboard focus should also select the segment
-      rect.addEventListener("focus", (e) => {
+      // mouse/pen click
+      rect.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") return; // handled below
+        if (rect.classList.contains("active")) {
+          hideTT(); clearActive();
+        } else {
+          setActiveRect(rect);
+          showTT(rect, e.clientX, e.clientY);
+        }
+      });
+
+      // keyboard navigation
+      rect.addEventListener("focus", () => {
         setActiveRect(rect);
         const b = rect.getBoundingClientRect();
         showTT(rect, b.left + 8, b.top);
       });
       rect.addEventListener("blur", () => { hideTT(); clearActive(); });
-
-      // pointerdown handles taps and clicks — toggle selection on repeated taps
-      rect.addEventListener("pointerdown", (e) => {
-        if (rect.classList.contains("active")) {
-          hideTT();
-          clearActive();
-        } else {
-          setActiveRect(rect);
-          showTT(rect, e.clientX, e.clientY);
-        }
-        e.preventDefault();
-      });
     });
 
-    // Delegate pointerdown on the SVG to the underlying rect when
-    // the initial target is not itself a rect (e.g. the user tapped
-    // the label text). This fixes taps on mobile where text can
-    // otherwise intercept the touch.
-    svg.addEventListener('pointerdown', (ev) => {
-      // If the target is already a rect, let the per-rect handler run.
-      if (ev.target && ev.target.closest && ev.target.closest('rect.gg-rect')) return;
-      const elAt = document.elementFromPoint(ev.clientX, ev.clientY);
-      const rect = elAt && elAt.closest ? elAt.closest('rect.gg-rect') : null;
+    // ── Single SVG-level touch handler for reliable mobile tap ──
+    // Using touchstart (passive:false so we can preventDefault to
+    // stop scroll steal) + elementFromPoint to locate the target rect.
+    svg.addEventListener("touchstart", (e) => {
+      const t   = e.changedTouches[0];
+      const hit = document.elementFromPoint(t.clientX, t.clientY);
+      const rect = hit && (hit.closest
+        ? hit.closest("rect.gg-rect")
+        : (hit.classList && hit.classList.contains("gg-rect") ? hit : null));
       if (!rect) return;
-      if (rect.classList.contains('active')) {
+      e.preventDefault(); // prevent scroll steal only when over a segment
+      if (rect.classList.contains("active")) {
         hideTT(); clearActive();
       } else {
         setActiveRect(rect);
-        showTT(rect, ev.clientX, ev.clientY);
+        showTT(rect, t.clientX, t.clientY);
       }
-      ev.preventDefault();
-    });
+    }, { passive: false });
+
+    // Remove the old SVG-level pointerdown delegation (replaced by touchstart above)
 
     // clicking / tapping outside the SVG clears any active selection
     document.addEventListener("pointerdown", (ev) => {
