@@ -30,12 +30,15 @@
 const el = (id) => document.getElementById(id);
 
 /**
- * Parse the numeric value of an `<input>` field.
- * Returns `NaN` (not 0) when the field is empty so callers can
- * distinguish "nothing entered" from a genuine zero.
+ * Parse the numeric value of an `<input>` or `<select class="picker">` field.
+ * Falls back to `id + '-picker'` when the plain input doesn't exist (ion
+ * inputs were replaced by native select pickers).
+ * Returns `NaN` (not 0) when empty so callers can distinguish from zero.
  */
 function parse(id) {
-  const v = parseFloat(el(id).value);
+  const node = el(id) || el(id + '-picker');
+  if (!node) return NaN;
+  const v = parseFloat(node.value);
   return Number.isFinite(v) ? v : NaN;
 }
 
@@ -711,10 +714,10 @@ document.querySelectorAll("select.unit-select").forEach((sel) => {
     const prevU  = s.dataset.prevUnit || "si";
     const newU   = s.value;
     const ionId  = s.id.replace("-unit", "");
-    const input  = document.getElementById(ionId);
-    const curVal = parseFloat(input.value);
+    const input  = document.getElementById(ionId);   // may be null (picker-only ions)
+    const curVal = input ? parseFloat(input.value) : NaN;
 
-    if (Number.isFinite(curVal) && prevU !== newU) {
+    if (Number.isFinite(curVal) && prevU !== newU && input) {
       const si  = displayToSI(ionId, curVal, prevU);
       const nv  = siToDisplay(ionId, si, newU);
       if (Number.isFinite(nv)) input.value = Math.round(nv * 100) / 100;
