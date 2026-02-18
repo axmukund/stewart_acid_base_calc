@@ -263,6 +263,14 @@ body.light svg.focused rect.gg-rect:not(.active) {
   .results-actions { justify-content: stretch; }
   .results-actions button { flex: 1; text-align: center; }
   .gg-legend .item { font-size: 13px; }
+
+  /* Mobile: make the Gamblegram visually taller — approximately
+     two‑thirds of the viewport height on phones so the bars are
+     easier to inspect by touch. The SVG keeps its aspect ratio
+     and scales to fill the container's height. */
+  .gamblegram { height: 66vh; max-height: 66vh; }
+  .gg-canvas { align-items: center; }
+  svg#gg-svg { width: auto; height: 100%; max-width: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════
