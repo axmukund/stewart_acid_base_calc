@@ -157,16 +157,19 @@ function renderGamblegram(vals) {
   let H;
   const canvasEl = svg.closest('.gg-canvas');
   let padTop;
-  if (canvasEl && canvasEl.clientHeight) {
-    // padTop is the smaller of a width-based fraction and a fraction of
-    // the canvas height, clamped to a minimum. This gives more room on
-    // tall desktops while remaining compact on narrow viewports.
+  const isMobile = window.matchMedia && window.matchMedia('(max-width:520px)').matches;
+  if (isMobile && canvasEl && canvasEl.clientHeight) {
+    // On mobile the canvas is pinned to 66vh via CSS — use that height
+    // directly so the bars fill the available vertical space.
     padTop = Math.max(12, Math.round(Math.min(W * 0.06, canvasEl.clientHeight * 0.08)));
     const available = Math.max(180, canvasEl.clientHeight - 28);
     H = Math.max(140, Math.round(available - padTop - 12));
   } else {
+    // On desktop the canvas has no fixed CSS height (only max-height),
+    // so clientHeight just mirrors the SVG content — avoid that feedback
+    // loop. Instead derive H from the container width with a taller ratio.
     padTop = Math.max(12, Math.round(W * 0.04));
-    H = Math.round(W * 0.86);
+    H = Math.round(W * 1.3);
   }
 
   const barW   = Math.round(Math.max(40, W * 0.30));
@@ -197,9 +200,8 @@ function renderGamblegram(vals) {
     (titleTag ? titleTag.outerHTML : "") +
     (descTag  ? descTag.outerHTML  : "");
   svg.setAttribute("viewBox", "0 0 " + W + " " + (H + padTop + 40));
-  // On narrow screens we want the SVG to fill the canvas height (so
-  // the chart itself can be tall while the legend remains below).
-  if (window.matchMedia && window.matchMedia('(max-width:520px)').matches) {
+  // On narrow screens fill the canvas height; on desktop fill the width.
+  if (isMobile) {
     svg.style.width = "auto";
     svg.style.height = "100%";
   } else {
