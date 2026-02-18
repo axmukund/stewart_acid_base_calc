@@ -8,32 +8,28 @@ A static, single-page web app that implements the **Stewart physicochemical appr
 
 | Feature | Description |
 |---------|-------------|
-| **Live calculation** | SIDa, SIDe, SIG, and AG update instantly as you type |
-| **Gamblegram** | Animated SVG stacked-bar chart of cations vs anions |
-| **Unit conversion** | Per-ion SI ↔ mg/dL toggle with auto-conversion |
-| **300 DPI export** | Download the Gamblegram as a print-quality PNG |
-| **Dark / Light mode** | One-click theme switch via CSS custom properties |
-| **Mobile-friendly** | Responsive single-column layout; collapses to phone-sized screens |
-| **Formulas panel** | Collapsible LaTeX display of all equations (via MathJax) |
-| **Zero dependencies** | Pure HTML + CSS + vanilla JS — no build step required |
+| **Live calculation** | SIDa, SIDe, SIG and AG update instantly as you change inputs |
+| **Interactive Gamblegram** | Animated SVG stacked‑bar — hover/tap highlights a single region while others become outlined |
+| **Unit conversion** | Per‑ion SI ↔ mg/dL toggle with automatic conversion |
+| **300 DPI export** | Export the Gamblegram as a print‑quality PNG |
+| **Accessible palette** | Okabe–Ito (color‑blind friendly); unknown ion uses a neon purple accent |
+| **Modular codebase** | Split into small JS modules in `js/` (no build step required) |
+| **Formulas panel** | Collapsible LaTeX (MathJax v3) with left‑aligned display |
+| **Mobile & accessibility** | Responsive layout; picker ranges extended (Alb 0–6 g/L, iCa 0–2 mmol/L, Cl 60–150 mmol/L) |
 
-## Equations
-
-$$
-\text{SID}_a = [\text{Na}^+] + [\text{K}^+] + [\text{iCa}^{2+}] + [\text{Mg}^{2+}] - [\text{Cl}^-] - [\text{Lactate}^-]
-$$
+## Equations (key)
 
 $$
-A^- \approx \frac{0.123 \times \text{Alb (g/L)}}{1 + 10^{7.08 - \text{pH}}}
+\mathrm{SID}_a = [\mathrm{Na}^+] + [\mathrm{K}^+] + 2[\mathrm{Ca}^{2+}] + 2[\mathrm{Mg}^{2+}] - [\mathrm{Cl}^-] - [\mathrm{Lactate}^-]
+$$
+
+$$
+\mathrm{SID}_e = [\mathrm{HCO}_3^-] + \mathrm{Alb}^- + \mathrm{Phos}^-
 \qquad
-\text{Pi}^- \approx \frac{0.309 \times [\text{PO}_4] \text{ (mmol/L)}}{1 + 10^{6.8 - \text{pH}}}
+\mathrm{SIG} = \mathrm{SID}_a - \mathrm{SID}_e
 $$
 
-$$
-\text{SID}_e = [\text{HCO}_3^-] + A^- + \text{Pi}^-
-\qquad
-\text{SIG} = \text{SID}_a - \text{SID}_e
-$$
+(Full formulas are available inside the app's collapsible **Formulas used** panel.)
 
 ## Running locally
 
@@ -72,16 +68,26 @@ python3 -m http.server 8000
 
 The `.nojekyll` file in this repo tells GitHub Pages to serve the files directly (no Jekyll processing).
 
-## Project structure
+## File map & project structure
 
 ```
 ├── index.html      ← App shell (inputs, results, Gamblegram, formulas)
 ├── style.css       ← All visual styling (dark/light, responsive, SVG)
-├── app.js          ← Calculation logic, SVG rendering, UI wiring
+├── js/             ← modular JS files (load order matters — see below)
+│   ├── helpers.js
+│   ├── physiology.js
+│   ├── units.js
+│   ├── gamblegram.js
+│   ├── export.js
+│   ├── compute.js
+│   ├── pickers.js
+│   │── events.js
 ├── .nojekyll       ← Tells GitHub Pages to skip Jekyll
 ├── .gitignore
 └── README.md
 ```
+
+See the `js/` files in the repository for a short description and the required load order.
 
 ## License
 
