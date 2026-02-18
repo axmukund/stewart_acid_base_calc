@@ -186,7 +186,7 @@ function renderGamblegram(vals) {
   // at large desktop sizes without becoming oversized on narrow screens.
   const fSize = isMobile
     ? Math.max(12, Math.min(Math.round(W * 0.030), 16))
-    : Math.max(18, Math.min(Math.round(W * 0.030), 34));
+    : Math.max(22, Math.min(Math.round(W * 0.042), 50));
   const fSizeNum = fSize;
   const baseY  = padTop + H;
 
