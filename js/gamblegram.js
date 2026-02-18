@@ -164,8 +164,15 @@ function renderGamblegram(vals) {
     (titleTag ? titleTag.outerHTML : "") +
     (descTag  ? descTag.outerHTML  : "");
   svg.setAttribute("viewBox", "0 0 " + W + " " + (H + padTop + 40));
-  svg.style.width  = "100%";
-  svg.style.height = "auto";
+  // On narrow screens we want the SVG to fill the canvas height (so
+  // the chart itself can be tall while the legend remains below).
+  if (window.matchMedia && window.matchMedia('(max-width:520px)').matches) {
+    svg.style.width = "auto";
+    svg.style.height = "100%";
+  } else {
+    svg.style.width  = "100%";
+    svg.style.height = "auto";
+  }
 
   /* ── Compute target heights / positions ── */
   let y = baseY;
