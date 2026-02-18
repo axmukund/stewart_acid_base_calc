@@ -196,6 +196,14 @@ svg text.gg-name { fill: var(--gg-label); font-weight: 400; }
 }
 .formulas.collapsed .formulas-body { display: none; }
 
+/* Ensure MathJax output doesn't overflow the card and aligns left */
+.formulas-body { text-align: left; max-width: 100%; overflow-x: auto; padding-right: 8px; }
+.formulas-body .MathJax_Display,
+.formulas-body .MathJax,
+.formulas-body mjx-container { max-width: 100% !important; display: block !important; margin: 0 !important; }
+.formulas-body .MathJax_Display { text-align: left !important; }
+.formulas-body pre { white-space: normal; overflow-wrap: anywhere; }
+
 /* ═══════════════════════════════════════════════════════════
    §12  SVG interactivity (hover / focus effects)
    ═══════════════════════════════════════════════════════════ */
