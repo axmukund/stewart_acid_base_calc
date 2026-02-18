@@ -22,16 +22,7 @@
         <label><input id="toggle-light" type="checkbox"> Light mode</label>
       </div>
 
-      <!-- ── Mobile-only header (shown ≤ 520 px via CSS) ── -->
-      <div class="mobile-header" role="region" aria-label="Mobile summary" aria-hidden="false">
-        <div class="mobile-title">Stewart / Figge</div>
-        <div class="mobile-summary">
-          <div class="mh-item">SIDa <span id="mh-sida">—</span></div>
-          <div class="mh-item">SIDe <span id="mh-side">—</span></div>
-          <div class="mh-item">SIG <span id="mh-sig">—</span></div>
-        </div>
-        <div class="mobile-actions"><button id="mh-toggle-formulas" class="compact">Formulas</button></div>
-      </div>
+
 
       <!-- ═══════════════════════════════════════════════════════════
            Input + results grid (single-column flex layout)
@@ -118,6 +109,17 @@
           </div>
         </section>
 
+        <!-- ── Mobile-only header (moved below Gamblegram) ── -->
+        <div class="mobile-header" role="region" aria-label="Mobile summary" aria-hidden="false">
+          <div class="mobile-title">Stewart / Figge</div>
+          <div class="mobile-summary">
+            <div class="mh-item">SIDa <span id="mh-sida">—</span></div>
+            <div class="mh-item">SIDe <span id="mh-side">—</span></div>
+            <div class="mh-item">SIG <span id="mh-sig">—</span></div>
+          </div>
+          <div class="mobile-actions"><button id="mh-toggle-formulas" class="compact">Formulas</button></div>
+        </div>
+
         <!-- ── Computed results (moved below Gamblegram) ── -->
         <section class="results compact" aria-live="polite">
           <h2>Results</h2>
@@ -142,15 +144,16 @@
           </div>
           <div class="formulas-body math">\[\begin{aligned}
             \mathrm{SID_a} &= [\mathrm{Na}^+] + [\mathrm{K}^+] + 2[\mathrm{Ca}^{2+}] + 2[\mathrm{Mg}^{2+}] - [\mathrm{Cl}^-] - [\mathrm{Lactate}^-] \\[8pt]
-            A^- &= -\,\frac{[\mathrm{Alb}]_{g/L}}{66.5}\;\sum_i \frac{n_i\,(\pm 1)}{1+10^{\,\pm(pK_{a,i}\,-\,\mathrm{pH})}}\quad\text{(Figge–Fencl v3.0)}\\[8pt]
-            \mathrm{Pi}^- &= [\mathrm{PO_4}]\;\frac{K_1[\mathrm{H}^+]^2 + 2K_1K_2[\mathrm{H}^+] + 3K_1K_2K_3}{[\mathrm{H}^+]^3 + K_1[\mathrm{H}^+]^2 + K_1K_2[\mathrm{H}^+] + K_1K_2K_3}\\[8pt]
-            \mathrm{SID_e} &= [\mathrm{HCO}_3^-] + A^- + \mathrm{Pi}^- \\[4pt]
-            \mathrm{SIG} &= \mathrm{SID_a} - \mathrm{SID_e}\\[8pt]
-            [\mathrm{HCO}_3^-] &= 0.03\times pCO_2\times 10^{\,\mathrm{pH}\,-\,6.1}\quad\text{(Henderson--Hasselbalch)}\\[12pt]
+            \mathrm{SID_e} &= [\mathrm{HCO}_3^-] + \mathrm{Alb}^- + \mathrm{Phos}^- \\[8pt]
+            \mathrm{SIG} &= \mathrm{SID_a} - \mathrm{SID_e} \\[8pt]
+            \mathrm{AG} &= [\mathrm{Na}^+] + [\mathrm{K}^+] - [\mathrm{Cl}^-] - [\mathrm{HCO}_3^-] \\[8pt]
+            [\mathrm{HCO}_3^-] &= 0.03\times pCO_2\times 10^{\,\mathrm{pH}\,-\,6.1} \quad\text{(Henderson--Hasselbalch)}\\[10pt]
+            \mathrm{Alb}^- &= -\,\frac{[\mathrm{Alb}]_{g/L}}{66.5}\;\sum_i \frac{n_i\,(\pm 1)}{1+10^{\,\pm(pK_{a,i}\,-\,\mathrm{pH})}}\quad\text{(Figge–Fencl v3.0)}\\[10pt]
+            \mathrm{Phos}^- &= [\mathrm{PO_4}]\;\frac{K_1[\mathrm{H}^+]^2 + 2K_1K_2[\mathrm{H}^+] + 3K_1K_2K_3}{[\mathrm{H}^+]^3 + K_1[\mathrm{H}^+]^2 + K_1K_2[\mathrm{H}^+] + K_1K_2K_3}\\[12pt]
             \textbf{Definitions:}\\[4pt]
             n_i &\;=\; \text{stoichiometric charge contribution of site }i\; (\pm 1;\text{ e.g. His, Lys, Asp/Glu})\\[6pt]
             pK_{a,i} &\;=\; \text{site-specific acid dissociation constant for residue }i\\[6pt]
-            K_j &\;=\;10^{-pK_j}\;\text{(so }K_1,K_2,K_3\text{ are the phosphate dissociation constants)}\\[6pt]
+            K_j &\;=\;10^{-pK_j}\;\text{(so }K_1,K_2,K_3\text{ are phosphate dissociation constants)}\\[6pt]
             [\mathrm{PO_4}] &\;=\;\text{total inorganic phosphate (mmol/L)}\\[6pt]
             [\mathrm{Alb}]_{g/L} &\;=\;\text{albumin concentration in g/L (use g/dL × 10)}\\[6pt]
             \alpha &\;=\;0.03\;\mathrm{L\cdot mmHg^{-1}}\;\text{(CO}_2\text{ solubility at 37\,°C)}\\[6pt]
