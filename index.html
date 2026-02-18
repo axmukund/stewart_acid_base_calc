@@ -14,7 +14,7 @@
          ═══════════════════════════════════════════════════════════ -->
     <main class="container">
       <h1>Stewart / Figge — acid–base calculator</h1>
-      <p class="muted">Static demo — not for clinical use. Reproduces inputs & core outputs (SIDa, SIDe, SIG, AG).</p>
+      <p class="muted">Static demo — not for clinical use. Reproduces inputs &amp; core outputs (SIDa, SIDe, SIG, AG). At physiologically normal values (albumin 42 g/L, pH 7.40, pCO₂ 40 mmHg, phosphate 1.0 mmol/L) the model gives SIG ≈ 5 mEq/L — this reflects real unmeasured anions in normal plasma (sulfate, acetate, citrate, etc.) that are absent from SIDa but present in SIDe.</p>
 
       <!-- ── Global toggles ── -->
       <div class="toolbar">
@@ -224,6 +224,13 @@
     <script src="./js/compute.js"></script>
     <script src="./js/pickers.js"></script>
     <script src="./js/events.js"></script>
+    <!-- MathJax config: left-align display equations -->
+    <script>
+      MathJax = {
+        chtml: { displayAlign: 'left', displayIndent: '0.5em' },
+        svg:   { displayAlign: 'left', displayIndent: '0.5em' }
+      };
+    </script>
     <!-- MathJax — renders the LaTeX formulas panel -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   </body>
