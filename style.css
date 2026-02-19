@@ -147,6 +147,14 @@ select.unit-select option { color: inherit; }
   cursor: pointer; font-size: 14px; min-height: 44px;
 }
 
+/* Generic button style used across the UI */
+.btn {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); padding: 10px 14px; border-radius: 6px;
+  cursor: pointer; font-size: 14px; min-height: 40px; display: inline-block;
+}
+.btn:hover { background: rgba(255,255,255,0.01); }
+
 /* ═══════════════════════════════════════════════════════════
    §9  Gamblegram (SVG stacked bars)
    ═══════════════════════════════════════════════════════════ */
