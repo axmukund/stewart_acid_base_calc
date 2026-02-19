@@ -138,6 +138,38 @@ document.querySelectorAll("select.unit-select").forEach((s) => {
   });
 });
 
+// HCO3: toggle between numeric input and picker when the BMP checkbox is used
+const _useBmp = document.getElementById("use-bmp-hco3");
+if (_useBmp) {
+  const toggleHco3 = () => {
+    const hco3Input = el("hco3");
+    const hco3Picker = el("hco3-picker");
+    const cfg = PICKER_CONFIG.find((c) => c.id === "hco3");
+    if (_useBmp.checked) {
+      if (hco3Input) {
+        hco3Input.style.display = "none";
+        hco3Input.value = "";
+        hco3Input.disabled = true;
+      }
+      if (hco3Picker) {
+        hco3Picker.style.display = "inline-block";
+        if (cfg) populatePicker(cfg);
+      }
+    } else {
+      if (hco3Input) {
+        hco3Input.style.display = "inline-block";
+        hco3Input.disabled = false;
+      }
+      if (hco3Picker) {
+        hco3Picker.style.display = "none";
+      }
+    }
+  };
+  _useBmp.addEventListener("change", () => { toggleHco3(); computeAll(); });
+  // initialize
+  toggleHco3();
+}
+
 /* ─────────────────────────────────────────────────────────────────────
  *  Window resize → recompute (the SVG measures its container width)
  * ───────────────────────────────────────────────────────────────────── */

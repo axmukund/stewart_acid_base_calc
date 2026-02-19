@@ -26,6 +26,7 @@ const PICKER_CONFIG = [
   { id: "phos", min: 0.00, max: 10.00, step: 0.1,  decimals: 1 },
   { id: "ph",   min: 6.80, max: 8.00,  step: 0.01, decimals: 2 },
   { id: "pco2", min: 0,    max: 200,   step: 1,    decimals: 0 },
+  { id: "hco3", min: 0.0,  max: 100.0, step: 0.1,  decimals: 1 },
 ];
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -46,6 +47,7 @@ const PICKER_DEFAULTS_SI = {
   phos: 1.0,
   ph:   7.40,
   pco2: 40.0,
+  hco3: 24.0,
 };
 
 /* ─────────────────────────────────────────────────────────────────────

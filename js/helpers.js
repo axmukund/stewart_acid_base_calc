@@ -22,7 +22,19 @@ const el = (id) => document.getElementById(id);
  *                       (NaN — not 0 — so callers can distinguish "blank" from "zero").
  */
 function parse(id) {
-  const node = el(id) || el(id + "-picker");
+  const inputNode = el(id);
+  let node = null;
+  if (inputNode) {
+    // prefer the explicit input if it has a value; otherwise fall back to picker
+    const raw = inputNode.value;
+    if (raw !== null && raw !== undefined && String(raw).trim() !== "") {
+      node = inputNode;
+    } else {
+      node = el(id + "-picker") || inputNode;
+    }
+  } else {
+    node = el(id + "-picker");
+  }
   if (!node) return NaN;
   const v = parseFloat(node.value);
   return Number.isFinite(v) ? v : NaN;
