@@ -88,16 +88,45 @@ function populatePicker(cfg, prevUnit) {
   // the clinical default.
   const targetSI = Number.isFinite(prevSI) ? prevSI : PICKER_DEFAULTS_SI[cfg.id];
 
-  // Rebuild <option> list
+  // Rebuild <option> list.
+  // When converting between units, many adjacent SI-steps can round
+  // to the same displayed label (e.g. fine SI step → mg/dL 1-decimal).
+  // Group SI values by their rounded display label and create one
+  // option per unique label using the mean SI representative so that
+  // switching units doesn't produce long duplicate lists.
   sel.innerHTML = "";
   const steps = Math.round((cfg.max - cfg.min) / cfg.step);
+  const groups = new Map(); // label -> {sumSI, count, minSI, maxSI}
   for (let i = 0; i <= steps; i++) {
-    const vSI      = cfg.min + i * cfg.step;
+    const vSI = cfg.min + i * cfg.step;
     const displayV = (unit === "si") ? vSI : siToDisplay(cfg.id, vSI, unit);
-    const label    = Number(displayV).toFixed(cfg.decimals);
-    const opt      = document.createElement("option");
-    opt.value       = label;
-    opt.textContent = label;
+    const label = Number(displayV).toFixed(cfg.decimals);
+    if (!groups.has(label)) {
+      groups.set(label, { sumSI: vSI, count: 1, minSI: vSI, maxSI: vSI });
+    } else {
+      const g = groups.get(label);
+      g.sumSI += vSI;
+      g.count += 1;
+      if (vSI < g.minSI) g.minSI = vSI;
+      if (vSI > g.maxSI) g.maxSI = vSI;
+    }
+  }
+
+  // Sort labels by their mean SI value to preserve numeric order
+  const entries = Array.from(groups.entries()).map(([label, g]) => ({
+    label,
+    meanSI: g.sumSI / g.count,
+    minSI: g.minSI,
+    maxSI: g.maxSI,
+  }));
+  entries.sort((a, b) => a.meanSI - b.meanSI);
+
+  for (const e of entries) {
+    const opt = document.createElement("option");
+    opt.value = e.label;
+    opt.textContent = e.label;
+    // store mean SI for potential use elsewhere (data attr)
+    opt.dataset.meanSi = String(e.meanSI);
     sel.appendChild(opt);
   }
 
