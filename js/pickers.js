@@ -64,7 +64,7 @@ const PICKER_DEFAULTS_SI = {
  *
  * @param {Object} cfg  One entry from `PICKER_CONFIG`.
  */
-function populatePicker(cfg) {
+function populatePicker(cfg, prevUnit) {
   const sel = document.getElementById(cfg.id + "-picker");
   const num = el(cfg.id) || sel; // fall back to picker if numeric input is absent
   if (!sel) return;
@@ -73,9 +73,14 @@ function populatePicker(cfg) {
   // it on unit-change repopulation.
   const unitEl   = document.getElementById(cfg.id + "-unit");
   const unit     = unitEl ? unitEl.value : "si";
+  // Determine which unit the previous displayed value was in. If the caller
+  // provided a `prevUnit` (captured before the unit-select changed), use it;
+  // otherwise fall back to any stored dataset.prev on the unit element or
+  // assume the current unit.
+  const prevUnitUsed = prevUnit || (unitEl && unitEl.dataset && unitEl.dataset.prev) || unit;
   const prevDisp = parseFloat(sel.value);
   const prevSI   = Number.isFinite(prevDisp)
-    ? displayToSI(cfg.id, prevDisp, unit) : NaN;
+    ? displayToSI(cfg.id, prevDisp, prevUnitUsed) : NaN;
 
   // Use the preserved SI value if available, otherwise fall back to
   // the clinical default.
@@ -108,6 +113,9 @@ function populatePicker(cfg) {
     sel.value = want;
     if (num && num !== sel) num.value = want;
   }
+
+  // Remember the unit we populated for future conversions
+  if (unitEl) unitEl.dataset.prev = unit;
 
   // Keep picker ↔ numeric input in sync
   sel.addEventListener("change", (e) => {

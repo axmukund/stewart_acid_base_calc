@@ -130,10 +130,18 @@ PICKER_CONFIG.forEach(populatePicker);
 // Repopulate a picker when its unit selector changes so the
 // option labels match the new unit.
 document.querySelectorAll("select.unit-select").forEach((s) => {
+  // capture the previous unit before the user changes it so we can convert
+  // the displayed picker value correctly from the old unit to the new one.
+  s.addEventListener("focus", () => { s.dataset.prev = s.value; });
+  s.addEventListener("mousedown", () => { s.dataset.prev = s.value; });
+
   s.addEventListener("change", () => {
     const ion = s.id.replace("-unit", "");
     const cfg = PICKER_CONFIG.find((c) => c.id === ion);
-    if (cfg) populatePicker(cfg);
+    const prev = s.dataset.prev || null;
+    if (cfg) populatePicker(cfg, prev);
+    // update stored prev unit to the new value
+    s.dataset.prev = s.value;
     computeAll();
   });
 });
