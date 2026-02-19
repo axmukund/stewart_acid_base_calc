@@ -28,7 +28,7 @@ Purpose: help an AI coding agent become productive immediately when editing this
 - **Load order matters.** Files are plain scripts sharing globals — a file may only reference functions/constants from files loaded before it (see table above).
 - Keep DOM-free logic in `js/physiology.js` — these are the functions suitable for unit-testing.
 - `PICKER_CONFIG` and `PICKER_DEFAULTS_SI` live in `js/pickers.js`. Update there when changing ranges/defaults.
- - Note: the `phos` entry was recently tuned to `min: 0.00`, `max: 4.00`, `step: 0.05`, `decimals: 2` with default `1.0`.
+ - Note: the `phos` entry was recently tuned to use mg/dL as the default display unit. Display range is 0.0–15.0 mg/dL with 0.1 increments (internal SI ≈ 0–4.85 mmol/L, default ≈ 1.0 mmol/L).
  - The `Reset` button was moved above the Gamblegram; its handler now restores checkbox states, repopulates pickers from `PICKER_DEFAULTS_SI` (converted to the currently selected unit), and repopulates the HCO3 picker where applicable.
 - Unit conversions: constants `MG_FACTOR`, `CA_FACTOR`, `LAC_FACTOR`, `PO4_FACTOR` live in `js/units.js`.
 - Divalent cations iCa²⁺ and Mg²⁺ are multiplied by 2 (valence correction) in `computeAll()` to convert mmol/L → mEq/L.
