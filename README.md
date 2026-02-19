@@ -17,6 +17,8 @@ A static, single-page web app that implements the **Stewart physicochemical appr
 | **Modular codebase** | 8 small JS files in `js/` — no build step, no bundler |
 | **Formulas panel** | Collapsible LaTeX (MathJax v3) with left‑aligned display |
 | **Mobile‑friendly** | Responsive layout; native `<select>` pickers for touch; picker ranges extended (Alb 0–6 g/dL, iCa 0–2 mmol/L, Cl 60–150 mmol/L) |
+| **Reset behaviour** | `Reset values` button placed above the Gamblegram; restores clinical defaults for all pickers (unit‑aware) |
+| **Phosphate picker** | Phosphate range tuned to 0.00–4.00 mmol/L with 0.05 step (default 1.0 mmol/L) |
 
 ## Equations (key)
 

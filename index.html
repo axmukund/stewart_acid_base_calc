@@ -98,7 +98,10 @@
 
 
 
-        <!-- ── Gamblegram (SVG stacked-bar chart) ── -->
+        <!-- Reset / Gamblegram (SVG stacked-bar chart) -->
+        <div class="controls-above-gamblegram">
+          <button id="reset" class="btn">Reset values</button>
+        </div>
         <section class="gamblegram" aria-label="Gamblegram (ion balance)">
           <h2>Gamblegram</h2>
           <div class="gg-canvas">
@@ -141,9 +144,7 @@
             <dt>SIG</dt><dd id="res-sig">—</dd>
             <dt>AG</dt><dd id="res-ag">—</dd>
           </dl>
-          <div class="results-actions">
-            <button id="reset">Reset values</button>
-          </div>
+          <!-- Reset button moved above the Gamblegram -->
           <p class="note small-note">Values update live. Use the toggle above to show non‑SI units. <strong>Normal SIG: 0–6 mEq/L.</strong></p>
         </section>
 

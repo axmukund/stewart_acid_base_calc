@@ -17,15 +17,76 @@
  *  Reset button
  * ───────────────────────────────────────────────────────────────────── */
 
-el("reset").addEventListener("click", () => {
-  document.querySelectorAll("input, select").forEach((elm) => {
-    if (elm.type === "checkbox")       elm.checked = elm.defaultChecked;
-    else if (elm.tagName === "SELECT") elm.value   = elm.defaultValue;
-    else                               elm.value   = elm.defaultValue || "";
+const _resetBtn = el("reset");
+if (_resetBtn) _resetBtn.addEventListener("click", () => {
+  // Reset checkboxes to their defaults
+  document.querySelectorAll("input[type=checkbox]").forEach((c) => (c.checked = c.defaultChecked));
+
+  // Reset unit selectors to their default values and update dataset.prev
+  document.querySelectorAll("select.unit-select").forEach((s) => {
+    s.value = s.defaultValue || s.value;
+    s.dataset.prev = s.value;
   });
+
+  // For each configured picker, set to clinical default (converted to current unit)
+  PICKER_CONFIG.forEach((cfg) => {
+    const sel = document.getElementById(cfg.id + "-picker");
+    const num = document.getElementById(cfg.id);
+    const unitEl = document.getElementById(cfg.id + "-unit");
+    const unit = unitEl ? unitEl.value : "si";
+    const defaultSI = PICKER_DEFAULTS_SI[cfg.id];
+    const displayV = (unit === "si") ? defaultSI : siToDisplay(cfg.id, defaultSI, unit);
+    const label = Number(displayV).toFixed(cfg.decimals);
+
+    // Ensure the picker has options for this value, repopulating if needed
+    if (sel) {
+      populatePicker(cfg);
+      if (!Array.from(sel.options).some((o) => o.value === label)) {
+        const extra = document.createElement("option");
+        extra.value = label;
+        extra.textContent = label;
+        sel.appendChild(extra);
+      }
+      sel.value = label;
+    }
+    if (num && num !== sel) num.value = label;
+  });
+
+  // Reset other non-picker inputs to their defaultValue (e.g., SBE)
+  document.querySelectorAll("input:not([type=checkbox])").forEach((inp) => {
+    if (!inp.id) return;
+    const inCfg = PICKER_CONFIG.some((c) => c.id === inp.id);
+    if (!inCfg) inp.value = inp.defaultValue || "";
+  });
+
+  // HCO3 visibility based on BMP checkbox default
+  const _useBmp = document.getElementById("use-bmp-hco3");
+  if (_useBmp) {
+    const hco3Input = el("hco3");
+    const hco3Picker = el("hco3-picker");
+    const cfg = PICKER_CONFIG.find((c) => c.id === "hco3");
+    if (_useBmp.checked) {
+      if (hco3Input) {
+        hco3Input.style.display = "none";
+        hco3Input.value = "";
+        hco3Input.disabled = true;
+      }
+      if (hco3Picker) {
+        hco3Picker.style.display = "inline-block";
+        if (cfg) populatePicker(cfg);
+      }
+    } else {
+      if (hco3Input) {
+        hco3Input.style.display = "inline-block";
+        hco3Input.disabled = false;
+        hco3Input.placeholder = "auto";
+      }
+      if (hco3Picker) hco3Picker.style.display = "none";
+    }
+  }
+
+  // Clear computed results and recompute
   document.querySelectorAll("dd").forEach((d) => (d.textContent = "\u2014"));
-  const h = el("hco3");
-  if (h) h.placeholder = "auto";
   computeAll();
 });
 

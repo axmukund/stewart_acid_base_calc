@@ -23,7 +23,7 @@ const PICKER_CONFIG = [
   { id: "cl",   min: 60,   max: 150,   step: 1,    decimals: 0 },
   { id: "lac",  min: 0.0,  max: 10.0,  step: 0.1,  decimals: 1 },
   { id: "alb",  min: 0.0,  max: 6.0,   step: 0.1,  decimals: 1 },
-  { id: "phos", min: 0.00, max: 10.00, step: 0.1,  decimals: 1 },
+  { id: "phos", min: 0.00, max: 4.00,  step: 0.05, decimals: 2 },
   { id: "ph",   min: 6.80, max: 8.00,  step: 0.01, decimals: 2 },
   { id: "pco2", min: 0,    max: 200,   step: 1,    decimals: 0 },
   { id: "hco3", min: 0.0,  max: 100.0, step: 0.1,  decimals: 1 },
