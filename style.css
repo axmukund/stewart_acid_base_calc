@@ -90,6 +90,25 @@ input[disabled] { background: rgba(255,255,255,0.01); color: var(--muted); curso
 /* native select pickers (replace sliders) */
 .picker { display: inline-block; min-width: 140px; margin-left: 8px; min-height: 40px; font-size: 16px; }
 
+/* Reference-range muted styling inside labels */
+.ion-label .muted { color: var(--muted); font-weight: normal; margin-left: 0.35ch; font-size: 0.95em; }
+
+/* Picker / select styling (dark/light via CSS vars) */
+.picker, .unit-select {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--input-border);
+  color: var(--fg);
+  padding: 8px 12px;
+  border-radius: 8px;
+  min-height: 40px;
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-appearance: menulist-button;
+  appearance: menulist-button;
+}
+.picker:focus, .unit-select:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.picker option { color: var(--fg); background: var(--card); }
+
 
 .ion-label { white-space: nowrap; display: inline-block; font-weight: 600; }
 .ion-label sup, .ion-label sub,
