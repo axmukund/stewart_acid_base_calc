@@ -32,36 +32,34 @@
         <fieldset>
           <legend>Strong cations</legend>
 
-          <label><span class="ion-label">Na<sup>+</sup> (mmol/L)</span>
+          <label><span class="ion-label">Na<sup>+</sup> (mmol/L)<span class="muted">, Ref. 135–145</span></span>
             <select id="na-picker" class="picker" aria-label="Na picker"></select>
           </label>
 
-          <label><span class="ion-label">K<sup>+</sup> (mmol/L)</span>
+          <label><span class="ion-label">K<sup>+</sup> (mmol/L)<span class="muted">, Ref. 3.5–5.0</span></span>
             <select id="k-picker" class="picker" aria-label="K picker"></select>
           </label>
 
-          <label><span class="ion-label">iCa<sup>2+</sup> (mmol/L)</span>
+          <label><span class="ion-label">iCa<sup>2+</sup><span class="muted">, Ref. 1.15–1.29 mmol/L (4.6–5.3 mg/dL)</span></span>
             <select id="ica-unit" class="unit-select"><option value="si">mmol/L</option><option value="mgdl">mg/dL</option></select>
             <select id="ica-picker" class="picker" aria-label="iCa picker"></select>
           </label>
 
-          <label><span class="ion-label">Mg<sup>2+</sup></span>
+          <label><span class="ion-label">Mg<sup>2+</sup><span class="muted">, Ref. 1.7–2.2 mg/dL (0.70–0.95 mmol/L)</span></span>
             <select id="mg-unit" class="unit-select"><option value="mgdl">mg/dL</option><option value="si">mmol/L</option></select>
             <select id="mg-picker" class="picker" aria-label="Mg picker"></select>
           </label>
-
-          <small class="muted small-note">Pickers available for quick selection on phones; type to edit precise values.</small>
         </fieldset>
 
         <!-- ── Strong anions ── -->
         <fieldset>
           <legend>Strong anions</legend>
 
-          <label><span class="ion-label">Cl<sup>−</sup> (mmol/L)</span>
+          <label><span class="ion-label">Cl<sup>−</sup> (mmol/L)<span class="muted">, Ref. 98–107</span></span>
             <select id="cl-picker" class="picker" aria-label="Cl picker"></select>
           </label>
 
-          <label><span class="ion-label">Lactate<sup>−</sup> (mmol/L)</span>
+          <label><span class="ion-label">Lactate<sup>−</sup><span class="muted">, Ref. 0.5–2.0 mmol/L (4.5–18 mg/dL)</span></span>
             <select id="lac-unit" class="unit-select"><option value="si">mmol/L</option><option value="mgdl">mg/dL</option></select>
             <select id="lac-picker" class="picker" aria-label="Lactate picker"></select>
           </label>
@@ -70,25 +68,29 @@
         <!-- ── Weak acids ── -->
         <fieldset>
           <legend>Weak acids</legend>
-          <label><span class="ion-label">Albumin (g/dL)</span>
+          <label><span class="ion-label">Albumin (g/dL)<span class="muted">, Ref. 3.5–5.0</span></span>
             <select id="alb-picker" class="picker" aria-label="Albumin picker"></select>
           </label>
 
-          <label><span class="ion-label">Phosphate (mmol/L)</span>
+          <label><span class="ion-label">Phosphate<span class="muted">, Ref. 0.8–1.45 mmol/L (2.5–4.5 mg/dL)</span></span>
             <select id="phos-unit" class="unit-select"><option value="si">mmol/L</option><option value="mgdl">mg/dL</option></select>
             <select id="phos-picker" class="picker" aria-label="Phosphate picker"></select>
           </label>
 
-          <label><span class="ion-label">HCO<sub>3</sub><sup>−</sup> (mmol/L)</span><input id="hco3" type="number" step="0.1" placeholder="auto" disabled></label>
-          <div class="checkbox-row"><input id="use-bmp-hco3" type="checkbox"><label for="use-bmp-hco3">Use measured BMP HCO<sub>3</sub> for Gamblegram (editable)</label></div>
+          <label><span class="ion-label">HCO<sub>3</sub><sup>−</sup> (mmol/L)<span class="muted">, Ref. 22–26</span></span><input id="hco3" type="number" step="0.1" placeholder="auto" disabled></label>
+          <div class="checkbox-row"><input id="use-bmp-hco3" type="checkbox"><label for="use-bmp-hco3">Use measured BMP HCO<sub>3</sub><sup>−</sup> for Gamblegram (editable)</label></div>
         </fieldset>
 
         <!-- ── Blood gas ── -->
         <fieldset>
           <legend>Blood‑gas</legend>
-          <label>pH<input id="ph" type="number" step="0.01" value="7.40"></label>
-          <label>pCO2 (mmHg)<input id="pco2" type="number" step="0.1" value="40"></label>
-          <label>SBE (mmol/L) <input id="sbe" type="number" step="0.1" placeholder="optional"></label>
+          <label><span style="white-space: nowrap;">pH<span class="muted">, Ref. 7.35–7.45</span></span>
+            <select id="ph-picker" class="picker" aria-label="pH picker"></select>
+          </label>
+          <label><span style="white-space: nowrap;">pCO<sub>2</sub> (mmHg)<span class="muted">, Ref. 35–45</span></span>
+            <select id="pco2-picker" class="picker" aria-label="pCO2 picker"></select>
+          </label>
+          <label><span style="white-space: nowrap;">SBE (mmol/L)<span class="muted">, Ref. −2 to +2</span></span><input id="sbe" type="number" step="0.1" placeholder="optional"></label>
         </fieldset>
 
 
@@ -105,6 +107,7 @@
           <div class="gg-info">
             <div id="gg-unknown" class="gg-unknown">Unknown: —</div>
             <div class="gg-legend" id="gg-legend"></div>
+            <button id="export-gg" title="Export Gamblegram as PNG" style="margin-top:12px;">Export Gamblegram</button>
           </div>
         </section>
 
@@ -130,7 +133,6 @@
           </dl>
           <div class="results-actions">
             <button id="reset">Reset values</button>
-            <button id="export-gg" title="Export Gamblegram as PNG">Export Gamblegram</button>
           </div>
           <p class="note small-note">Values update live. Use the toggle above to show non‑SI units. <strong>Normal SIG: 0–6 mEq/L.</strong></p>
         </section>
