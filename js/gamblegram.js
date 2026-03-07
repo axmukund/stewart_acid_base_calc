@@ -82,6 +82,8 @@ function renderGamblegram(vals) {
    *
    * iCa and Mg values reaching the Gamblegram are already 2× (mEq/L),
    * so we divide by 2 to recover mmol/L before the mg/dL conversion.
+   * The Mg segment reflects estimated ionized Mg derived from the
+   * total serum Mg input elsewhere in the UI.
    */
   const toNonSI = (k, v) => {
     if (!Number.isFinite(v)) return null;
@@ -228,16 +230,62 @@ function renderGamblegram(vals) {
   /* ── Create rect + label pairs ── */
   const NS   = "http://www.w3.org/2000/svg";
   const anim = [];
+  const guideColor = (getComputedStyle(document.documentElement)
+    .getPropertyValue("--gg-label").trim()) || "#9aa4b2";
 
-  // Track label positions per-column to avoid cross-column interference
-  const leftLabelBoxes  = [];
-  const rightLabelBoxes = [];
+  function layoutLabelYs(targets) {
+    const labelHeight = fSizeNum * 1.2;
+    const half        = labelHeight / 2;
+    const top         = padTop + half;
+    const bottom      = baseY - half;
+    const gapY        = labelHeight + Math.max(4, Math.round(fSizeNum * 0.18));
+    const placed = targets.map((t, index) => ({
+      index,
+      targetY: t.ty + t.th / 2,
+    })).sort((a, b) => a.targetY - b.targetY);
 
-  function addSeg(t, x, lx, anchor, boxes) {
+    if (!placed.length) return new Map();
+
+    const capacity = bottom - top;
+    if (placed.length > 1 && gapY * (placed.length - 1) > capacity) {
+      const step = capacity / (placed.length - 1);
+      placed.forEach((item, i) => { item.y = top + i * step; });
+    } else {
+      let cursor = top;
+      placed.forEach((item) => {
+        item.y = Math.max(item.targetY, cursor);
+        cursor = item.y + gapY;
+      });
+
+      if (placed[placed.length - 1].y > bottom) {
+        placed[placed.length - 1].y = bottom;
+        for (let i = placed.length - 2; i >= 0; i--) {
+          placed[i].y = Math.min(placed[i].y, placed[i + 1].y - gapY);
+        }
+        if (placed[0].y < top) {
+          placed[0].y = top;
+          for (let i = 1; i < placed.length; i++) {
+            placed[i].y = Math.max(placed[i].y, placed[i - 1].y + gapY);
+          }
+        }
+      }
+    }
+
+    const out = new Map();
+    placed.forEach((item) => out.set(item.index, item.y));
+    return out;
+  }
+
+  const leftLabelYs  = layoutLabelYs(cT);
+  const rightLabelYs = layoutLabelYs(aT);
+
+  function addSeg(t, x, lx, anchor, labelY) {
     const item = t.item;
     const prev = prevRects[item.k];
     const sH   = prev ? Math.max(4, prev.h) : 8;
     const sY   = prev ? prev.y : baseY - sH;
+    const centerY = t.ty + t.th / 2;
+    const startTextY = sY + sH / 2;
 
     const rect = document.createElementNS(NS, "rect");
     rect.setAttribute("class", "gg-rect");
@@ -253,17 +301,19 @@ function renderGamblegram(vals) {
     rect.dataset.val = (item.v || 0).toFixed(2);
     svg.appendChild(rect);
 
-    // Compute label position; adjust vertically if it collides with previous labels
-    let labelY = sY + sH / 2;
     const labelHeight = fSizeNum * 1.2; // estimate text height
-    const labelHalfH = labelHeight / 2;
-
-    // Check for collisions with existing labels in this column; shift down
-    for (const box of boxes) {
-      const spacing = 2;
-      if (Math.abs(labelY - box.y) < labelHalfH + box.h / 2 + spacing) {
-        labelY = box.y + box.h / 2 + labelHalfH + spacing;
-      }
+    if (Math.abs(labelY - centerY) > labelHeight * 0.35) {
+      const guide = document.createElementNS(NS, "line");
+      const textEdge = anchor === "end" ? lx + 6 : lx - 6;
+      guide.setAttribute("x1", anchor === "end" ? x : x + barW);
+      guide.setAttribute("y1", centerY);
+      guide.setAttribute("x2", textEdge);
+      guide.setAttribute("y2", labelY);
+      guide.setAttribute("stroke", guideColor);
+      guide.setAttribute("stroke-width", "1.25");
+      guide.setAttribute("stroke-linecap", "round");
+      guide.setAttribute("opacity", "0.45");
+      svg.appendChild(guide);
     }
 
     const text = document.createElementNS(NS, "text");
@@ -276,13 +326,18 @@ function renderGamblegram(vals) {
     text.textContent = svgLabel(item.k) + " " + item.v.toFixed(2);
     svg.appendChild(text);
 
-    boxes.push({ y: labelY, h: labelHeight });
-    anim.push({ rect, text, sY, sH, ty: t.ty, th: t.th });
+    anim.push({
+      rect, text,
+      sY, sH,
+      ty: t.ty, th: t.th,
+      sTextY: startTextY,
+      tTextY: labelY,
+    });
   }
 
   const labelPad = Math.max(12, Math.round(fSize * 0.85));
-  cT.forEach((t) => addSeg(t, leftX,  leftX - labelPad,          "end",   leftLabelBoxes));
-  aT.forEach((t) => addSeg(t, rightX, rightX + barW + labelPad,  "start", rightLabelBoxes));
+  cT.forEach((t, i) => addSeg(t, leftX,  leftX - labelPad,         "end",   leftLabelYs.get(i)));
+  aT.forEach((t, i) => addSeg(t, rightX, rightX + barW + labelPad, "start", rightLabelYs.get(i)));
 
   /* ── "Unknown" label under chart ── */
   if (sig >  0.0001)      unknownEl.textContent = "Unknown anions: "  + sig.toFixed(1)           + " mEq/L";
@@ -398,7 +453,7 @@ function renderGamblegram(vals) {
       const ch = a.sH + (a.th - a.sH) * e;
       a.rect.setAttribute("y",      cy);
       a.rect.setAttribute("height", Math.max(1, ch));
-      a.text.setAttribute("y",      cy + ch / 2);
+      a.text.setAttribute("y",      a.sTextY + (a.tTextY - a.sTextY) * e);
     });
     if (p < 1) window._ggAF = requestAnimationFrame(tick);
     else       window._ggAF = null;
@@ -419,8 +474,11 @@ function renderGamblegram(vals) {
     if (mid) {
       const uel = document.getElementById(mid + "-unit");
       const raw = parse(mid);
-      if (uel && uel.value !== "si" && Number.isFinite(raw)) {
-        const u = uel.value === "mgdl" ? "mg/dL" : uel.value;
+      const u = uel && uel.value === "mgdl" ? "mg/dL" : "mmol/L";
+      if (key === "Mg" && Number.isFinite(raw)) {
+        extra = '<div style="margin-top:4px;color:var(--muted)">'
+              + "Total Mg entered: " + raw.toFixed(2) + " " + u + "</div>";
+      } else if (uel && uel.value !== "si" && Number.isFinite(raw)) {
         extra = '<div style="margin-top:4px;color:var(--muted)">'
               + raw.toFixed(2) + " " + u + " (entered)</div>";
       }
@@ -430,7 +488,8 @@ function renderGamblegram(vals) {
     const showNon = document.getElementById("show-non-si") &&
                     document.getElementById("show-non-si").checked;
     const nsLine = (ns && showNon)
-      ? '<div style="color:var(--muted);margin-top:4px">\u2248 ' + ns + "</div>"
+      ? '<div style="color:var(--muted);margin-top:4px">\u2248 ' + ns +
+        (key === "Mg" ? " estimated ionized" : "") + "</div>"
       : "";
 
     tooltip.innerHTML =

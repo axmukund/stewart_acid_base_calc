@@ -5,8 +5,9 @@
  *
  * Contents:
  *   1. hco3FromPHandPco2()  — Henderson–Hasselbalch
- *   2. albuminCharge()      — Full Figge–Fencl v3.0 multi-proton albumin model
- *   3. phosphateCharge()    — Triprotic phosphate equilibrium
+ *   2. ionizedMagnesiumFromTotal() — Estimate iMg from total Mg
+ *   3. albuminCharge()      — Full Figge–Fencl v3.0 multi-proton albumin model
+ *   4. phosphateCharge()    — Triprotic phosphate equilibrium
  *
  * References:
  *   [1] Figge J, Mydosh T, Fencl V. "Serum proteins and acid-base
@@ -18,6 +19,9 @@
  *       (Phosphoric acid apparent dissociation constants for plasma, 37 °C)
  *   [4] Henderson–Hasselbalch equation; pKa(CO₂/HCO₃⁻) = 6.1,
  *       CO₂ solubility coefficient α = 0.0307 mmol/L/mmHg at 37 °C.
+ *   [5] PubMed 12416286. Adult serum total ↔ ionized magnesium
+ *       correlation used here as a pragmatic estimate because iMg
+ *       is not routinely measured on standard chemistry panels.
  */
 
 "use strict";
@@ -40,6 +44,32 @@
  */
 function hco3FromPHandPco2(pH, pCO2) {
   return 0.03 * pCO2 * Math.pow(10, pH - 6.1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ *  Estimated ionized magnesium
+ * ───────────────────────────────────────────────────────────────────── */
+
+/**
+ * Estimate ionized magnesium from total serum magnesium.
+ *
+ * Most chemistry panels report total Mg rather than ionized Mg.
+ * Published adult serum data show a strong linear relation between
+ * the two, so the calculator accepts total Mg and estimates iMg for
+ * the SID / Gamblegram contribution.
+ *
+ * The estimate is clamped to [0, totalMg] to avoid impossible values
+ * at extreme picker edges where the linear fit would otherwise exceed
+ * the entered total concentration.
+ *
+ * @param {number} totalMg  Total serum magnesium in mmol/L
+ * @returns {number}        Estimated ionized magnesium in mmol/L
+ */
+function ionizedMagnesiumFromTotal(totalMg) {
+  if (!Number.isFinite(totalMg)) return NaN;
+  if (totalMg <= 0) return 0;
+  const estimate = 0.66 * totalMg + 0.039;
+  return Math.max(0, Math.min(totalMg, estimate));
 }
 
 /* ─────────────────────────────────────────────────────────────────────

@@ -35,17 +35,18 @@ const PICKER_CONFIG = [
  *  Clinically typical defaults (SI units)
  *
  *  All values are mmol/L except albumin which is g/dL.
- *  Mg default is the ionised fraction (≈ 60 % of total serum Mg).
+ *  Mg input is total serum magnesium; ionized Mg is estimated later
+ *  for the SID / Gamblegram calculation.
  * ───────────────────────────────────────────────────────────────────── */
 
 const PICKER_DEFAULTS_SI = {
   na:   140.0,
   k:    4.0,
   ica:  1.20,
-  mg:   0.50,    // ionised Mg (≈ 60 % of total serum ≈ 0.85)
+  mg:   0.75,    // total serum Mg ≈ 1.82 mg/dL (normal-range default)
   cl:   104.0,
   lac:  1.0,
-  alb:  4.0,     // g/dL
+  alb:  4.2,     // g/dL
   phos: 1.0,
   ph:   7.40,
   pco2: 40.0,

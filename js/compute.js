@@ -24,13 +24,14 @@ function computeAll() {
   const Na   = getIonSI("na");
   const K    = getIonSI("k");
   const iCa  = getIonSI("ica");
-  const Mg   = getIonSI("mg");
+  const MgTotal = getIonSI("mg");
   const Cl   = getIonSI("cl");
   const Lac  = getIonSI("lac");
   const Alb  = parse("alb");           // albumin — g/dL
   const Phos = getIonSI("phos");
   const pH   = parse("ph");
   const pCO2 = parse("pco2");
+  const iMg  = ionizedMagnesiumFromTotal(MgTotal);
 
   /* ── HCO₃ handling ──
    *    By default HCO₃ is derived from the blood-gas (Henderson–
@@ -62,7 +63,7 @@ function computeAll() {
 
   /* ── Stewart core (all in mEq/L — divalent cations carry 2× charge) ── */
   const sidA =
-    (Na || 0) + (K || 0) + 2 * (iCa || 0) + 2 * (Mg || 0)
+    (Na || 0) + (K || 0) + 2 * (iCa || 0) + 2 * (iMg || 0)
     - (Cl || 0) - (Lac || 0);
 
   // Albumin: g/dL → g/L for the Figge model
@@ -116,7 +117,7 @@ function computeAll() {
   renderGamblegram({
     Na, K,
     iCa: 2 * (iCa || 0),                            // divalent → 2 mEq/mmol
-    Mg_mmol: 2 * (Number.isFinite(Mg) ? Mg : 0),    // divalent → 2 mEq/mmol
+    Mg_mmol: 2 * (Number.isFinite(iMg) ? iMg : 0),  // estimated ionized Mg → charge eq
     Cl, Lac,
     HCO3: ggHCO3,
     albMinus, piMinus,

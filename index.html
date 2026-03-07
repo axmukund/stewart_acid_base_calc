@@ -45,10 +45,11 @@
             <select id="ica-picker" class="picker" aria-label="iCa picker"></select>
           </label>
 
-          <label><span class="ion-label">Mg<sup>2+</sup><span class="muted">, Ref. 1.7–2.2 mg/dL (0.70–0.95 mmol/L)</span></span>
+          <label><span class="ion-label">Mg<sup>2+</sup> total<span class="muted">, Ref. 1.7–2.2 mg/dL (0.70–0.95 mmol/L)</span></span>
             <select id="mg-unit" class="unit-select"><option value="mgdl">mg/dL</option><option value="si">mmol/L</option></select>
             <select id="mg-picker" class="picker" aria-label="Mg picker"></select>
           </label>
+          <div class="field-note">Calculator estimates ionized Mg<sup>2+</sup> from total serum Mg for SIDa and the Gamblegram.</div>
         </fieldset>
 
         <!-- ── Strong anions ── -->
@@ -142,10 +143,11 @@
             <dt>SIDe</dt><dd id="res-side">—</dd>
             <dt>SIDa</dt><dd id="res-sida">—</dd>
             <dt>SIG</dt><dd id="res-sig">—</dd>
-            <dt>AG</dt><dd id="res-ag">—</dd>
+            <dt>AG (with K<sup>+</sup>)</dt><dd id="res-ag">—</dd>
           </dl>
           <!-- Reset button moved above the Gamblegram -->
           <p class="note small-note">Values update live. Use the toggle above to show non‑SI units. <strong>Normal SIG: 0–6 mEq/L.</strong></p>
+          <p class="note small-note">AG here includes K<sup>+</sup>; lab-reported “normal AG” values are often lower when K<sup>+</sup> is omitted.</p>
         </section>
 
         <!-- ── Formulas panel (collapsible) ── -->
@@ -168,6 +170,7 @@
             K_j &\;=\;10^{-pK_j}\;\text{(so }K_1,K_2,K_3\text{ are phosphate dissociation constants)}\\[6pt]
             [\mathrm{PO_4}] &\;=\;\text{total inorganic phosphate (mmol/L)}\\[6pt]
             [\mathrm{Alb}]_{g/L} &\;=\;\text{albumin concentration in g/L (use g/dL × 10)}\\[6pt]
+            [\mathrm{Mg}]_{total} &\;=\;\text{total serum magnesium entered by the user; the calculator estimates ionized Mg from this value for SID}_a\text{ / Gamblegram}\\[6pt]
             \alpha &\;=\;0.03\;\mathrm{L\cdot mmHg^{-1}}\;\text{(CO}_2\text{ solubility at 37\,°C)}\\[6pt]
             \text{Sum over }i &\;\text{runs over albumin titratable residues (His, Lys, Arg, Asp/Glu, Tyr, N/C termini); Site pK values follow Figge\u2013Fencl v3.0 (implemented in }js/physiology.js\text{).}\\[6pt]
           \end{aligned}\]</div>

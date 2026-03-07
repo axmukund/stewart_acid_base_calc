@@ -32,6 +32,8 @@ $$
 \mathrm{SIG} = \mathrm{SID}_a - \mathrm{SID}_e
 $$
 
+(Clinical assumptions used by the app: entered **Mg** is **total serum magnesium**, and the calculator estimates ionized Mg²⁺ for the SIDa / Gamblegram contribution. The displayed **AG** uses the K-including form `Na + K - Cl - HCO3`.)
+
 (Full formulas are available inside the app's collapsible **Formulas used** panel.)
 
 ## Running locally

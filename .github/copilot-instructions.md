@@ -32,10 +32,12 @@ Purpose: help an AI coding agent become productive immediately when editing this
  - The `Reset` button was moved above the Gamblegram; its handler now restores checkbox states, repopulates pickers from `PICKER_DEFAULTS_SI` (converted to the currently selected unit), and repopulates the HCO3 picker where applicable.
 - Unit conversions: constants `MG_FACTOR`, `CA_FACTOR`, `LAC_FACTOR`, `PO4_FACTOR` live in `js/units.js`.
 - Divalent cations iCa²⁺ and Mg²⁺ are multiplied by 2 (valence correction) in `computeAll()` to convert mmol/L → mEq/L.
+- The `mg` input is **total serum magnesium**. `computeAll()` estimates ionized Mg from the entered total Mg before using it in SIDa / Gamblegram math.
 - Debounce timings: input debounce = 150 ms (`_inputTimer`), resize debounce = 200 ms (`_resizeTimer`).
 - Accessibility: keep `<title>`/`<desc>` inside `#gg-svg` and the tooltip element `#gg-tooltip` when editing visualization.
 - Math rendering: MathJax v3 is loaded from CDN. The `MathJax` global config object **must** appear before the CDN script tag (see bottom of `index.html`).
 - **Labels**: albumin charge uses `Alb⁻` (not `A⁻`); phosphate charge uses `Phos⁻` (not `Pi⁻`). These labels are defined in `SVG_LABELS` / `HTML_LABELS` in `gamblegram.js` and mirrored in result text in `compute.js`.
+- The displayed AG is the **K-including** form (`Na + K - Cl - HCO3`), so expected “normal AG” values differ from lab conventions that omit K⁺.
 
 ## Gamblegram colour palette 🎨
 - All colours come from CSS custom properties: `--gg-Na`, `--gg-K`, `--gg-iCa`, `--gg-Mg`, `--gg-Cl`, `--gg-Lactate`, `--gg-HCO3`, `--gg-Aminus` (albumin), `--gg-Pi` (phosphate), `--gg-Unknown` (SIG).
