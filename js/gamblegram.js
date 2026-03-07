@@ -230,8 +230,9 @@ function renderGamblegram(vals) {
   /* ── Create rect + label pairs ── */
   const NS   = "http://www.w3.org/2000/svg";
   const anim = [];
-  const guideColor = (getComputedStyle(document.documentElement)
-    .getPropertyValue("--gg-label").trim()) || "#9aa4b2";
+  const rootStyle = getComputedStyle(document.documentElement);
+  const guideColor = rootStyle.getPropertyValue("--gg-guide").trim() || "#e6eef8";
+  const guideUnderlay = rootStyle.getPropertyValue("--gg-guide-underlay").trim() || "#020617";
 
   function layoutLabelYs(targets) {
     const labelHeight = fSizeNum * 1.2;
@@ -303,16 +304,32 @@ function renderGamblegram(vals) {
 
     const labelHeight = fSizeNum * 1.2; // estimate text height
     if (Math.abs(labelY - centerY) > labelHeight * 0.35) {
-      const guide = document.createElementNS(NS, "line");
       const textEdge = anchor === "end" ? lx + 6 : lx - 6;
-      guide.setAttribute("x1", anchor === "end" ? x : x + barW);
-      guide.setAttribute("y1", centerY);
-      guide.setAttribute("x2", textEdge);
-      guide.setAttribute("y2", labelY);
+      const x1 = anchor === "end" ? x : x + barW;
+      const y1 = centerY;
+      const x2 = textEdge;
+      const y2 = labelY;
+
+      const underlay = document.createElementNS(NS, "line");
+      underlay.setAttribute("x1", x1);
+      underlay.setAttribute("y1", y1);
+      underlay.setAttribute("x2", x2);
+      underlay.setAttribute("y2", y2);
+      underlay.setAttribute("stroke", guideUnderlay);
+      underlay.setAttribute("stroke-width", "4.2");
+      underlay.setAttribute("stroke-linecap", "round");
+      underlay.setAttribute("opacity", "0.9");
+      svg.appendChild(underlay);
+
+      const guide = document.createElementNS(NS, "line");
+      guide.setAttribute("x1", x1);
+      guide.setAttribute("y1", y1);
+      guide.setAttribute("x2", x2);
+      guide.setAttribute("y2", y2);
       guide.setAttribute("stroke", guideColor);
-      guide.setAttribute("stroke-width", "1.25");
+      guide.setAttribute("stroke-width", "2.2");
       guide.setAttribute("stroke-linecap", "round");
-      guide.setAttribute("opacity", "0.45");
+      guide.setAttribute("opacity", "0.96");
       svg.appendChild(guide);
     }
 
