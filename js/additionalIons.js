@@ -16,6 +16,15 @@ const EXTRA_ION_ANION_COLORS = [
   "#C2410C",
 ];
 
+const ADDITIONAL_ION_PRESETS = {
+  sulfate: { name: "Sulfate", kind: "anion", charge: 2 },
+  acetate: { name: "Acetate", kind: "anion", charge: 1 },
+  citrate: { name: "Citrate", kind: "anion", charge: 3 },
+  ketones: { name: "Ketones", kind: "anion", charge: 1 },
+  lithium: { name: "Lithium", kind: "cation", charge: 1 },
+  bromide: { name: "Bromide", kind: "anion", charge: 1 },
+};
+
 let _extraIonSeq = 0;
 
 function additionalIonLabel(kind, index) {
@@ -125,6 +134,8 @@ function addAdditionalIon(definition = {}) {
   list.appendChild(row);
   wireAdditionalIonRow(row);
   updateAdditionalIonEmptyState();
+  const valueEl = row.querySelector(".additional-ion-value");
+  if (valueEl) valueEl.focus();
   computeAll();
   return row;
 }
@@ -184,5 +195,14 @@ const _addIonBtn = el("add-ion");
 if (_addIonBtn) {
   _addIonBtn.addEventListener("click", () => addAdditionalIon());
 }
+
+document.querySelectorAll("[data-ion-preset]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const presetKey = btn.dataset.ionPreset;
+    const preset = presetKey ? ADDITIONAL_ION_PRESETS[presetKey] : null;
+    if (!preset) return;
+    addAdditionalIon(preset);
+  });
+});
 
 updateAdditionalIonEmptyState();
