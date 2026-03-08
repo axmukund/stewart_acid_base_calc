@@ -32,6 +32,9 @@ function computeAll() {
   const pH   = parse("ph");
   const pCO2 = parse("pco2");
   const iMg  = ionizedMagnesiumFromTotal(MgTotal);
+  const extraIons = typeof getAdditionalIonSegments === "function"
+    ? getAdditionalIonSegments()
+    : { cations: [], anions: [], totalCations: 0, totalAnions: 0 };
 
   /* ── HCO₃ handling ──
    *    By default HCO₃ is derived from the blood-gas (Henderson–
@@ -42,29 +45,27 @@ function computeAll() {
       ? hco3FromPHandPco2(pH, pCO2) : NaN;
 
   const hco3El = el("hco3");
-  const useBmp =
+  const hco3PickerEl = el("hco3-picker");
+  const useBmpRequested =
     document.getElementById("use-bmp-hco3") &&
     document.getElementById("use-bmp-hco3").checked;
-
-  if (hco3El) {
-    if (useBmp) {
-      hco3El.disabled = false;
-    } else {
-      hco3El.disabled = true;
-      hco3El.value = Number.isFinite(hco3FromGas)
-        ? hco3FromGas.toFixed(2) : "";
-    }
-  }
-
-  let HCO3 = parse("hco3");
-  if (!Number.isFinite(HCO3) && Number.isFinite(hco3FromGas)) {
-    HCO3 = hco3FromGas;
-  }
+  const fixedSig =
+    document.getElementById("fix-sig") &&
+    document.getElementById("fix-sig").checked;
+  const sigTargetEl = el("sig-target");
+  const useBmp = useBmpRequested && !fixedSig;
+  const bmpHCO3 = hco3PickerEl ? parseFloat(hco3PickerEl.value) : NaN;
+  const manualHCO3 = hco3El ? parseFloat(hco3El.value) : NaN;
+  let HCO3 =
+    (useBmp && Number.isFinite(bmpHCO3)) ? bmpHCO3
+    : Number.isFinite(hco3FromGas)       ? hco3FromGas
+    :                                      manualHCO3;
 
   /* ── Stewart core (all in mEq/L — divalent cations carry 2× charge) ── */
   const sidA =
     (Na || 0) + (K || 0) + 2 * (iCa || 0) + 2 * (iMg || 0)
-    - (Cl || 0) - (Lac || 0);
+    - (Cl || 0) - (Lac || 0)
+    + extraIons.totalCations - extraIons.totalAnions;
 
   // Albumin: g/dL → g/L for the Figge model
   const Alb_gL   = Number.isFinite(Alb) ? Alb * 10 : NaN;
@@ -73,9 +74,36 @@ function computeAll() {
   const piMinus  = Number.isFinite(Phos) && Number.isFinite(pH)
     ? phosphateCharge(Phos, pH) : 0;
 
+  const baselineSidE = (HCO3 || 0) + albMinus + piMinus;
+  const baselineSig = sidA - baselineSidE;
+  let sigTarget = sigTargetEl ? parseFloat(sigTargetEl.value) : NaN;
+  if (fixedSig && !Number.isFinite(sigTarget)) {
+    sigTarget = baselineSig;
+    if (sigTargetEl) sigTargetEl.value = sigTarget.toFixed(1);
+  }
+  if (fixedSig) {
+    HCO3 = sidA - (sigTarget || 0) - albMinus - piMinus;
+  }
+
+  if (hco3El) {
+    hco3El.disabled = true;
+    if (fixedSig) {
+      hco3El.value = Number.isFinite(HCO3) ? HCO3.toFixed(2) : "";
+    } else if (useBmp) {
+      hco3El.value = "";
+    } else {
+      hco3El.value = Number.isFinite(hco3FromGas)
+        ? hco3FromGas.toFixed(2)
+        : (Number.isFinite(HCO3) ? HCO3.toFixed(2) : "");
+    }
+  }
+
   const sidE = (HCO3 || 0) + albMinus + piMinus;
   const sig  = sidA - sidE;
   const ag   = (Na || 0) + (K || 0) - ((Cl || 0) + (HCO3 || 0));
+
+  window.__lastCalculatedSig = sig;
+  window.__lastCalculatedHCO3 = HCO3;
 
   // Round to one decimal for display
   const sidAR = Math.round(sidA * 10) / 10;
@@ -107,11 +135,11 @@ function computeAll() {
      (0.309 * (Phos || 0))).toFixed(3) + " mmol/L (Atot)";
 
   /* ── Gamblegram HCO₃ choice ── */
-  const bmpVal = parse("hco3");
   const ggHCO3 =
-    (useBmp && Number.isFinite(bmpVal)) ? bmpVal
-    : Number.isFinite(hco3FromGas)      ? hco3FromGas
-    :                                     (HCO3 || 0);
+    fixedSig                            ? (HCO3 || 0)
+    : (useBmp && Number.isFinite(bmpHCO3)) ? bmpHCO3
+    : Number.isFinite(hco3FromGas)         ? hco3FromGas
+    :                                        (HCO3 || 0);
 
   /* ── Render Gamblegram (values in mEq/L = charge equivalents) ── */
   renderGamblegram({
@@ -122,5 +150,7 @@ function computeAll() {
     HCO3: ggHCO3,
     albMinus, piMinus,
     sig: sigR,
+    extraCations: extraIons.cations,
+    extraAnions: extraIons.anions,
   });
 }

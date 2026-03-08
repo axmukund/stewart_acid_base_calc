@@ -82,7 +82,14 @@
             <input id="hco3" type="number" step="0.1" placeholder="auto" disabled>
             <select id="hco3-picker" class="picker" style="display:none;" aria-label="HCO3 picker"></select>
           </label>
+          <div id="hco3-mode-note" class="field-note">Derived from pH and pCO<sub>2</sub> unless the measured BMP HCO<sub>3</sub><sup>−</sup> override is enabled.</div>
           <div class="checkbox-row"><input id="use-bmp-hco3" type="checkbox"><label for="use-bmp-hco3">Use measured BMP HCO<sub>3</sub><sup>−</sup> for Gamblegram (editable)</label></div>
+          <div class="checkbox-row"><input id="fix-sig" type="checkbox"><label for="fix-sig">Fix SIG and make HCO<sub>3</sub><sup>−</sup> the dependent variable</label></div>
+          <label id="sig-target-row" class="aux-input" style="display:none;">
+            <span class="ion-label">Fixed SIG target (mEq/L)</span>
+            <input id="sig-target" type="number" step="0.1" placeholder="current SIG" disabled>
+          </label>
+          <div id="sig-target-note" class="field-note" style="display:none;">When enabled, the current SIG is frozen and HCO<sub>3</sub><sup>−</sup> is solved from SIDa and the weak-acid terms.</div>
         </fieldset>
 
         <!-- ── Blood gas ── -->
@@ -95,6 +102,16 @@
             <select id="pco2-picker" class="picker" aria-label="pCO2 picker"></select>
           </label>
           <label><span style="white-space: nowrap;">SBE (mmol/L)<span class="muted">, Ref. −2 to +2</span></span><input id="sbe" type="number" step="0.1" placeholder="optional"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Additional accounted ions</legend>
+          <div class="field-note">Add measured ions as fully dissociated strong ions. Each row contributes concentration × charge to SIDa and appears separately in the Gamblegram instead of remaining hidden in SIG.</div>
+          <div id="additional-ions-empty" class="field-note">No additional ions added.</div>
+          <div id="additional-ions-list" class="additional-ions-list" aria-live="polite"></div>
+          <div class="additional-ions-actions">
+            <button id="add-ion" class="btn" type="button">Add ion</button>
+          </div>
         </fieldset>
 
 
@@ -158,8 +175,10 @@
           </div>
           <div class="formulas-body math">\[\begin{aligned}
             \mathrm{SID_a} &= [\mathrm{Na}^+] + [\mathrm{K}^+] + 2[\mathrm{Ca}^{2+}] + 2[\mathrm{Mg}^{2+}] - [\mathrm{Cl}^-] - [\mathrm{Lactate}^-] \\[8pt]
+            &\qquad + \sum (\text{added cations}) - \sum (\text{added anions}) \\[8pt]
             \mathrm{SID_e} &= [\mathrm{HCO}_3^-] + \mathrm{Alb}^- + \mathrm{Phos}^- \\[8pt]
             \mathrm{SIG} &= \mathrm{SID_a} - \mathrm{SID_e} \\[8pt]
+            [\mathrm{HCO}_3^-]_{\text{fixed SIG}} &= \mathrm{SID_a} - \mathrm{SIG}_{target} - \mathrm{Alb}^- - \mathrm{Phos}^- \\[8pt]
             \mathrm{AG} &= [\mathrm{Na}^+] + [\mathrm{K}^+] - [\mathrm{Cl}^-] - [\mathrm{HCO}_3^-] \\[8pt]
             [\mathrm{HCO}_3^-] &= 0.03\times pCO_2\times 10^{\,\mathrm{pH}\,-\,6.1} \quad\text{(Henderson--Hasselbalch)}\\[10pt]
             \mathrm{Alb}^- &= -\,\frac{[\mathrm{Alb}]_{g/L}}{66.5}\;\sum_i \frac{n_i\,(\pm 1)}{1+10^{\,\pm(pK_{a,i}\,-\,\mathrm{pH})}}\quad\text{(Figge–Fencl v3.0)}\\[10pt]
@@ -233,6 +252,7 @@
     <script src="./js/helpers.js"></script>
     <script src="./js/physiology.js"></script>
     <script src="./js/units.js"></script>
+    <script src="./js/additionalIons.js"></script>
     <script src="./js/gamblegram.js"></script>
     <script src="./js/export.js"></script>
     <script src="./js/compute.js"></script>

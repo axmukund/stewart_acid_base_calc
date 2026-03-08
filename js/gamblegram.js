@@ -34,8 +34,26 @@ const HTML_LABELS = {
   Unknown: "Unknown",
 };
 
-const svgLabel  = (k) => SVG_LABELS[k] || k;
-const htmlLabel = (k) => HTML_LABELS[k] || k;
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function svgLabel(segment) {
+  if (segment && segment.labelText) return segment.labelText;
+  const key = segment && segment.k ? segment.k : segment;
+  return SVG_LABELS[key] || key;
+}
+
+function htmlLabel(segment) {
+  if (segment && segment.labelText) return escapeHTML(segment.labelText);
+  const key = segment && segment.k ? segment.k : segment;
+  return HTML_LABELS[key] || escapeHTML(key);
+}
 
 /* ─────────────────────────────────────────────────────────────────────
  *  renderGamblegram()
@@ -76,6 +94,8 @@ function renderGamblegram(vals) {
   const albMinus = vals.albMinus || 0;
   const piMinus  = vals.piMinus  || 0;
   const sig      = vals.sig      || 0;
+  const extraCations = Array.isArray(vals.extraCations) ? vals.extraCations : [];
+  const extraAnions  = Array.isArray(vals.extraAnions)  ? vals.extraAnions  : [];
 
   /**
    * Tooltip non-SI helper — returns a conventional-unit string or null.
@@ -116,14 +136,14 @@ function renderGamblegram(vals) {
     { k: "K",   v: K,       c: cssColor("K",   "#FFE9C9") },
     { k: "iCa", v: iCa,     c: cssColor("iCa", "#DFF7ED") },
     { k: "Mg",  v: Mg_mmol, c: cssColor("Mg",  "#E8E9FF") },
-  ];
+  ].concat(extraCations);
   let anions = [
     { k: "Cl",      v: Cl,       c: cssColor("Cl",      "#FFD8DA") },
     { k: "Lactate", v: Lac,      c: cssColor("Lactate", "#FFF6D6") },
     { k: "HCO3",    v: HCO3,     c: cssColor("HCO3",    "#E9FFEA") },
     { k: "Alb",     v: albMinus, c: cssColor("Aminus",  "#F0EAFF") },
     { k: "Phos",    v: piMinus,  c: cssColor("Pi",      "#FFF9DE") },
-  ];
+  ].concat(extraAnions);
 
   // SIG → "Unknown" segment at the top of the shorter column
   const UNKNOWN_CLR = cssColor("Unknown", "#B347FF");
@@ -300,6 +320,11 @@ function renderGamblegram(vals) {
     rect.setAttribute("tabindex","0");
     rect.dataset.key = item.k;
     rect.dataset.val = (item.v || 0).toFixed(2);
+    if (item.labelText) rect.dataset.label = item.labelText;
+    if (item.isCustom) rect.dataset.custom = "true";
+    if (Number.isFinite(item.concentration)) rect.dataset.concentration = item.concentration.toFixed(2);
+    if (Number.isFinite(item.charge)) rect.dataset.charge = String(item.charge);
+    if (item.kind) rect.dataset.kind = item.kind;
     svg.appendChild(rect);
 
     const labelHeight = fSizeNum * 1.2; // estimate text height
@@ -340,7 +365,7 @@ function renderGamblegram(vals) {
     text.setAttribute("dominant-baseline","middle");
     text.setAttribute("text-anchor",      anchor);
     text.setAttribute("font-size",        fSize);
-    text.textContent = svgLabel(item.k) + " " + item.v.toFixed(2);
+    text.textContent = svgLabel(item) + " " + item.v.toFixed(2);
     svg.appendChild(text);
 
     anim.push({
@@ -367,11 +392,22 @@ function renderGamblegram(vals) {
     if (seen.has(x.k)) return false;
     seen.add(x.k); return true;
   });
-  legend.innerHTML = items.map((it) =>
-    '<div class="item"><span class="swatch" style="background:' + it.c +
-    '"></span><span>' + htmlLabel(it.k) + " \u2014 " +
-    it.v.toFixed(2) + " mEq/L</span></div>"
-  ).join("");
+  legend.innerHTML = "";
+  items.forEach((it) => {
+    const itemEl = document.createElement("div");
+    itemEl.className = "item";
+
+    const swatch = document.createElement("span");
+    swatch.className = "swatch";
+    swatch.style.background = it.c;
+
+    const text = document.createElement("span");
+    text.innerHTML = htmlLabel(it) + " \u2014 " + it.v.toFixed(2) + " mEq/L";
+
+    itemEl.appendChild(swatch);
+    itemEl.appendChild(text);
+    legend.appendChild(itemEl);
+  });
 
   /* ── Wire up tooltip / selection events (pointer + keyboard + touch) ── */
   const tooltip = document.getElementById("gg-tooltip");
@@ -483,6 +519,9 @@ function renderGamblegram(vals) {
     if (!tooltip) return;
     const key = rect.dataset.key;
     const val = parseFloat(rect.dataset.val) || 0;
+    const label = rect.dataset.label
+      ? escapeHTML(rect.dataset.label)
+      : htmlLabel(key);
 
     // Show the original entered unit if it differs from SI
     const ID_MAP = { Na: "na", K: "k", iCa: "ica", Mg: "mg", Cl: "cl", Lactate: "lac", Phos: "phos" };
@@ -500,6 +539,15 @@ function renderGamblegram(vals) {
               + raw.toFixed(2) + " " + u + " (entered)</div>";
       }
     }
+    if (rect.dataset.custom === "true") {
+      const concentration = rect.dataset.concentration || "0.00";
+      const charge = rect.dataset.charge || "1";
+      const kind = rect.dataset.kind || "anion";
+      extra = '<div style="margin-top:4px;color:var(--muted)">'
+            + concentration + " mmol/L × " + charge + " charge"
+            + (charge === "1" ? "" : "s")
+            + " (" + escapeHTML(kind) + ")</div>";
+    }
 
     const ns = toNonSI(key, val);
     const showNon = document.getElementById("show-non-si") &&
@@ -510,7 +558,7 @@ function renderGamblegram(vals) {
       : "";
 
     tooltip.innerHTML =
-      "<strong>" + htmlLabel(key) + "</strong>" +
+      "<strong>" + label + "</strong>" +
       '<div style="font-weight:700;margin-top:4px">' +
       val.toFixed(2) + " mEq/L</div>" + extra + nsLine;
 

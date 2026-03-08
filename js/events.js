@@ -13,6 +13,76 @@
 
 "use strict";
 
+const _useBmp = document.getElementById("use-bmp-hco3");
+const _fixSig = document.getElementById("fix-sig");
+
+function captureCurrentSigTarget() {
+  const sigTarget = el("sig-target");
+  if (!sigTarget) return;
+
+  let currentSig = Number.isFinite(window.__lastCalculatedSig)
+    ? window.__lastCalculatedSig
+    : NaN;
+
+  if (!Number.isFinite(currentSig)) {
+    const resSig = el("res-sig");
+    const match = resSig && resSig.textContent
+      ? resSig.textContent.match(/-?\d+(?:\.\d+)?/)
+      : null;
+    currentSig = match ? parseFloat(match[0]) : NaN;
+  }
+
+  sigTarget.value = Number.isFinite(currentSig) ? currentSig.toFixed(1) : "";
+}
+
+function syncDependentControls(options = {}) {
+  const captureCurrentSig = !!options.captureCurrentSig;
+  const hco3Input = el("hco3");
+  const hco3Picker = el("hco3-picker");
+  const sigTargetRow = el("sig-target-row");
+  const sigTargetInput = el("sig-target");
+  const sigTargetNote = el("sig-target-note");
+  const hco3ModeNote = el("hco3-mode-note");
+  const cfg = PICKER_CONFIG.find((c) => c.id === "hco3");
+  const fixedSig = !!(_fixSig && _fixSig.checked);
+  let useBmp = !!(_useBmp && _useBmp.checked);
+
+  if (fixedSig && captureCurrentSig) captureCurrentSigTarget();
+
+  if (_useBmp) {
+    if (fixedSig) {
+      _useBmp.checked = false;
+      _useBmp.disabled = true;
+      useBmp = false;
+    } else {
+      _useBmp.disabled = false;
+    }
+  }
+
+  if (hco3Input) {
+    hco3Input.style.display = useBmp ? "none" : "inline-block";
+    hco3Input.disabled = true;
+    hco3Input.placeholder = fixedSig ? "calculated" : "auto";
+  }
+
+  if (hco3Picker) {
+    hco3Picker.style.display = (!fixedSig && useBmp) ? "inline-block" : "none";
+    if (!fixedSig && useBmp && cfg) populatePicker(cfg);
+  }
+
+  if (sigTargetRow) sigTargetRow.style.display = fixedSig ? "flex" : "none";
+  if (sigTargetNote) sigTargetNote.style.display = fixedSig ? "block" : "none";
+  if (sigTargetInput) sigTargetInput.disabled = !fixedSig;
+
+  if (hco3ModeNote) {
+    hco3ModeNote.innerHTML = fixedSig
+      ? "Calculated from SIDa, the fixed SIG target, and the weak-acid terms."
+      : useBmp
+        ? "Using the measured BMP HCO<sub>3</sub><sup>−</sup> picker value."
+        : "Derived from pH and pCO<sub>2</sub> unless the measured BMP HCO<sub>3</sub><sup>−</sup> override is enabled.";
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────
  *  Reset button
  * ───────────────────────────────────────────────────────────────────── */
@@ -27,6 +97,8 @@ if (_resetBtn) _resetBtn.addEventListener("click", () => {
     s.value = s.defaultValue || s.value;
     s.dataset.prev = s.value;
   });
+
+  if (typeof clearAdditionalIons === "function") clearAdditionalIons();
 
   // For each configured picker, set to clinical default (converted to current unit)
   PICKER_CONFIG.forEach((cfg) => {
@@ -58,32 +130,7 @@ if (_resetBtn) _resetBtn.addEventListener("click", () => {
     const inCfg = PICKER_CONFIG.some((c) => c.id === inp.id);
     if (!inCfg) inp.value = inp.defaultValue || "";
   });
-
-  // HCO3 visibility based on BMP checkbox default
-  const _useBmp = document.getElementById("use-bmp-hco3");
-  if (_useBmp) {
-    const hco3Input = el("hco3");
-    const hco3Picker = el("hco3-picker");
-    const cfg = PICKER_CONFIG.find((c) => c.id === "hco3");
-    if (_useBmp.checked) {
-      if (hco3Input) {
-        hco3Input.style.display = "none";
-        hco3Input.value = "";
-        hco3Input.disabled = true;
-      }
-      if (hco3Picker) {
-        hco3Picker.style.display = "inline-block";
-        if (cfg) populatePicker(cfg);
-      }
-    } else {
-      if (hco3Input) {
-        hco3Input.style.display = "inline-block";
-        hco3Input.disabled = false;
-        hco3Input.placeholder = "auto";
-      }
-      if (hco3Picker) hco3Picker.style.display = "none";
-    }
-  }
+  syncDependentControls();
 
   // Clear computed results and recompute
   document.querySelectorAll("dd").forEach((d) => (d.textContent = "\u2014"));
@@ -206,38 +253,19 @@ document.querySelectorAll("select.unit-select").forEach((s) => {
     computeAll();
   });
 });
-
-// HCO3: toggle between numeric input and picker when the BMP checkbox is used
-const _useBmp = document.getElementById("use-bmp-hco3");
 if (_useBmp) {
-  const toggleHco3 = () => {
-    const hco3Input = el("hco3");
-    const hco3Picker = el("hco3-picker");
-    const cfg = PICKER_CONFIG.find((c) => c.id === "hco3");
-    if (_useBmp.checked) {
-      if (hco3Input) {
-        hco3Input.style.display = "none";
-        hco3Input.value = "";
-        hco3Input.disabled = true;
-      }
-      if (hco3Picker) {
-        hco3Picker.style.display = "inline-block";
-        if (cfg) populatePicker(cfg);
-      }
-    } else {
-      if (hco3Input) {
-        hco3Input.style.display = "inline-block";
-        hco3Input.disabled = false;
-      }
-      if (hco3Picker) {
-        hco3Picker.style.display = "none";
-      }
-    }
-  };
-  _useBmp.addEventListener("change", () => { toggleHco3(); computeAll(); });
-  // initialize
-  toggleHco3();
+  _useBmp.addEventListener("change", () => {
+    syncDependentControls();
+    computeAll();
+  });
 }
+if (_fixSig) {
+  _fixSig.addEventListener("change", () => {
+    syncDependentControls({ captureCurrentSig: _fixSig.checked });
+    computeAll();
+  });
+}
+syncDependentControls();
 
 /* ─────────────────────────────────────────────────────────────────────
  *  Window resize → recompute (the SVG measures its container width)
