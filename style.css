@@ -86,7 +86,7 @@ section.grid,
   justify-content: flex-start;
 }
 
-@media (min-width: 960px) {
+@media (min-width: 1400px) {
   .container { max-width: 1360px; }
   .workspace {
     display: grid;
