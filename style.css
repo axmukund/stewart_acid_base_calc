@@ -90,7 +90,7 @@ section.grid,
   .container { max-width: 1360px; }
   .workspace {
     display: grid;
-    grid-template-columns: minmax(480px, 1.04fr) minmax(420px, 0.96fr);
+    grid-template-columns: minmax(440px, 1fr) minmax(420px, 1fr);
     gap: 18px;
     align-items: start;
   }
