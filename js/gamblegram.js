@@ -162,8 +162,11 @@ function renderGamblegram(vals) {
 
   /* ── Responsive geometry ── */
   const container = document.querySelector(".container");
-  const pad    = container ? parseInt(getComputedStyle(container).paddingLeft, 10) || 22 : 22;
-  const W      = container ? Math.max(300, container.clientWidth - pad * 2) : 480;
+  const canvasEl = svg.closest(".gg-canvas");
+  const pad = container ? parseInt(getComputedStyle(container).paddingLeft, 10) || 22 : 22;
+  const canvasWidth = canvasEl ? Math.round(canvasEl.clientWidth) : 0;
+  const W = Math.max(320, canvasWidth || (container ? container.clientWidth - pad * 2 : 480));
+  const rootStyle = getComputedStyle(document.documentElement);
 
   /*
    * On narrow viewports the surrounding `.gg-canvas` is sized via
@@ -177,7 +180,6 @@ function renderGamblegram(vals) {
   // doesn't overlap the stacked bars. For small screens keep a sensible
   // minimum padding.
   let H;
-  const canvasEl = svg.closest('.gg-canvas');
   let padTop;
   const isMobile = window.matchMedia && window.matchMedia('(max-width:520px)').matches;
   if (isMobile && canvasEl && canvasEl.clientHeight) {
@@ -187,16 +189,17 @@ function renderGamblegram(vals) {
     const available = Math.max(180, canvasEl.clientHeight - 28);
     H = Math.max(140, Math.round(available - padTop - 12));
   } else {
-    // On desktop the canvas has no fixed CSS height (only max-height),
-    // so clientHeight just mirrors the SVG content — avoid that feedback
-    // loop. Instead derive H from the container width with a taller ratio.
-    padTop = Math.max(12, Math.round(W * 0.04));
-    H = Math.round(W * 1.3);
+    // On desktop size against the actual chart canvas width so the
+    // rendered label scale tracks the visible Gamblegram instead of the
+    // full page container. Use a broader aspect ratio to give the labels
+    // and legend more horizontal room.
+    padTop = Math.max(12, Math.round(W * 0.035));
+    H = Math.round(W * 1.08);
   }
 
   // On mobile use narrower bars so labels beside them aren't clipped;
   // on desktop use wider bars since there's more horizontal room.
-  const barFraction = isMobile ? 0.28 : 0.38;
+  const barFraction = isMobile ? 0.28 : 0.40;
   const barW   = Math.round(Math.max(40, W * barFraction));
   const gap    = Math.max(8, Math.round(W * 0.02));
   const barsW  = 2 * barW + gap;
@@ -206,9 +209,10 @@ function renderGamblegram(vals) {
   // Font size is in SVG coordinate-space units (viewBox), NOT CSS pixels.
   // Use separate scaling for mobile vs desktop so labels remain legible
   // at large desktop sizes without becoming oversized on narrow screens.
+  const legendFontPx = parseFloat(rootStyle.getPropertyValue("--gg-legend-font-size")) || 15;
   const fSize = isMobile
-    ? Math.max(12, Math.min(Math.round(W * 0.030), 16))
-    : Math.max(22, Math.min(Math.round(W * 0.042), 50));
+    ? Math.max(12, Math.min(Math.round(legendFontPx * (W / 330)), 16))
+    : Math.max(legendFontPx, Math.min(Math.round(legendFontPx * (W / 560)), 19));
   const fSizeNum = fSize;
   const baseY  = padTop + H;
 
@@ -250,7 +254,6 @@ function renderGamblegram(vals) {
   /* ── Create rect + label pairs ── */
   const NS   = "http://www.w3.org/2000/svg";
   const anim = [];
-  const rootStyle = getComputedStyle(document.documentElement);
   const guideColor = rootStyle.getPropertyValue("--gg-guide").trim() || "#e6eef8";
   const guideUnderlay = rootStyle.getPropertyValue("--gg-guide-underlay").trim() || "#020617";
 

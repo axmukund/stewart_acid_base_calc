@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#071029" />
     <title>Stewart / Figge — acid–base calculator</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./style.css?v=20260309" />
   </head>
   <body>
     <!-- ═══════════════════════════════════════════════════════════
@@ -135,6 +135,35 @@
         <div class="controls-above-gamblegram">
           <button id="reset" class="btn">Reset values</button>
         </div>
+        <!-- ── Computed results (above Gamblegram) ── -->
+        <section class="results compact" aria-live="polite">
+          <div class="results-head">
+            <h2>Results</h2>
+            <p class="results-head-note"><strong>Normal SIG: 0–6 mEq/L.</strong></p>
+          </div>
+          <dl class="results-grid">
+            <div class="result-card">
+              <dt data-result-for="res-sida">SIDa <span class="ref-range">Typical 37–43 mEq/L</span></dt>
+              <dd id="res-sida">—</dd>
+            </div>
+            <div class="result-card">
+              <dt data-result-for="res-side">SIDe <span class="ref-range">Typical 35–40 mEq/L</span></dt>
+              <dd id="res-side">—</dd>
+            </div>
+            <div class="result-card">
+              <dt data-result-for="res-sig">SIG <span class="ref-range">Normal 0–6 mEq/L</span></dt>
+              <dd id="res-sig">—</dd>
+            </div>
+            <div class="result-card">
+              <dt data-result-for="res-ag">AG <span class="ref-range">With K<sup>+</sup>, typical 12–20 mEq/L</span></dt>
+              <dd id="res-ag">—</dd>
+            </div>
+          </dl>
+          <p class="note small-note">Values update live. Use the toggle above to show non‑SI units.</p>
+          <p class="note small-note">Stewart reference values vary by source. This app shows practical ranges that match its normal-default assumptions: SIDa 37–43 mEq/L and SIDe 35–40 mEq/L.</p>
+          <p class="note small-note">AG here includes K<sup>+</sup>; lab-reported “normal AG” values are often lower when K<sup>+</sup> is omitted.</p>
+        </section>
+
         <section class="gamblegram" aria-label="Gamblegram (ion balance)">
           <h2>Gamblegram</h2>
           <div class="gg-canvas">
@@ -157,7 +186,7 @@
           </div>
         </section>
 
-        <!-- ── Mobile-only header (moved below Gamblegram) ── -->
+        <!-- ── Mobile-only header ── -->
         <div class="mobile-header" role="region" aria-label="Mobile summary" aria-hidden="false">
           <div class="mobile-title">Stewart / Figge</div>
           <div class="mobile-summary">
@@ -167,21 +196,6 @@
           </div>
           <div class="mobile-actions"><button id="mh-toggle-formulas" class="compact">Formulas</button></div>
         </div>
-
-        <!-- ── Computed results (moved below Gamblegram) ── -->
-        <section class="results compact" aria-live="polite">
-          <h2>Results</h2>
-          <dl>
-            <dt data-result-for="res-side">SIDe <span class="ref-range">Typical 35–40 mEq/L</span></dt><dd id="res-side">—</dd>
-            <dt data-result-for="res-sida">SIDa <span class="ref-range">Typical 37–43 mEq/L</span></dt><dd id="res-sida">—</dd>
-            <dt data-result-for="res-sig">SIG <span class="ref-range">Normal 0–6 mEq/L</span></dt><dd id="res-sig">—</dd>
-            <dt data-result-for="res-ag">AG (with K<sup>+</sup>) <span class="ref-range">Typical 12–20 mEq/L</span></dt><dd id="res-ag">—</dd>
-          </dl>
-          <!-- Reset button moved above the Gamblegram -->
-          <p class="note small-note">Values update live. Use the toggle above to show non‑SI units. <strong>Normal SIG: 0–6 mEq/L.</strong></p>
-          <p class="note small-note">Stewart reference values vary by source. This app shows practical ranges that match its normal-default assumptions: SIDa 37–43 mEq/L and SIDe 35–40 mEq/L.</p>
-          <p class="note small-note">AG here includes K<sup>+</sup>; lab-reported “normal AG” values are often lower when K<sup>+</sup> is omitted.</p>
-        </section>
 
         <!-- ── Formulas panel (collapsible) ── -->
         <section class="formulas collapsed" id="formulas-panel">
@@ -266,15 +280,15 @@
     </main>
 
     <!-- ── Application logic (load order matters — no ES modules) ── -->
-    <script src="./js/helpers.js"></script>
-    <script src="./js/physiology.js"></script>
-    <script src="./js/units.js"></script>
-    <script src="./js/additionalIons.js"></script>
-    <script src="./js/gamblegram.js"></script>
-    <script src="./js/export.js"></script>
-    <script src="./js/compute.js"></script>
-    <script src="./js/pickers.js"></script>
-    <script src="./js/events.js"></script>
+    <script src="./js/helpers.js?v=20260309"></script>
+    <script src="./js/physiology.js?v=20260309"></script>
+    <script src="./js/units.js?v=20260309"></script>
+    <script src="./js/additionalIons.js?v=20260309"></script>
+    <script src="./js/gamblegram.js?v=20260309"></script>
+    <script src="./js/export.js?v=20260309"></script>
+    <script src="./js/compute.js?v=20260309"></script>
+    <script src="./js/pickers.js?v=20260309"></script>
+    <script src="./js/events.js?v=20260309"></script>
     <!-- MathJax config: left-align display equations -->
     <script>
       MathJax = {

@@ -184,4 +184,6 @@ function computeAll() {
     extraCations: extraIons.cations,
     extraAnions: extraIons.anions,
   });
+
+  if (typeof window.refreshScrollHints === "function") window.refreshScrollHints();
 }

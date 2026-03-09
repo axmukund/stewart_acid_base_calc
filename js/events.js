@@ -15,6 +15,40 @@
 
 const _useBmp = document.getElementById("use-bmp-hco3");
 const _fixSig = document.getElementById("fix-sig");
+const _desktopScrollColumns = Array.from(document.querySelectorAll(".ion-column, .analysis-column"));
+
+const SCROLL_HINT_THRESHOLD = 14;
+let _scrollHintFrame = null;
+
+function refreshScrollHintsNow() {
+  const pageScroller = document.scrollingElement || document.documentElement;
+  const pageHasMoreBelow =
+    pageScroller.scrollHeight - pageScroller.clientHeight > SCROLL_HINT_THRESHOLD &&
+    pageScroller.scrollTop + pageScroller.clientHeight < pageScroller.scrollHeight - SCROLL_HINT_THRESHOLD;
+
+  document.body.classList.toggle("page-scroll-hint", pageHasMoreBelow);
+
+  const desktopColumnsEnabled =
+    !(window.matchMedia && window.matchMedia("(max-width: 1399px)").matches);
+
+  _desktopScrollColumns.forEach((column) => {
+    const hasMoreBelow = desktopColumnsEnabled &&
+      column.scrollHeight - column.clientHeight > SCROLL_HINT_THRESHOLD &&
+      column.scrollTop + column.clientHeight < column.scrollHeight - SCROLL_HINT_THRESHOLD;
+
+    column.classList.toggle("scroll-hint-visible", hasMoreBelow);
+  });
+}
+
+function refreshScrollHints() {
+  if (_scrollHintFrame) cancelAnimationFrame(_scrollHintFrame);
+  _scrollHintFrame = requestAnimationFrame(() => {
+    _scrollHintFrame = null;
+    refreshScrollHintsNow();
+  });
+}
+
+window.refreshScrollHints = refreshScrollHints;
 
 function shouldUseLightModeByLocalTime(date = new Date()) {
   const hour = date.getHours();
@@ -164,6 +198,7 @@ function setFormulasCollapsed(collapsed) {
     _toggleBtn.textContent = collapsed ? "Show" : "Hide";
     _toggleBtn.setAttribute("aria-expanded", String(!collapsed));
   }
+  refreshScrollHints();
 }
 if (_toggleBtn) {
   _toggleBtn.addEventListener("click", () =>
@@ -186,9 +221,10 @@ if (_lightToggle) {
   _lightToggle.checked = startLight;
   _lightToggle.defaultChecked = startLight;
   document.body.classList.toggle("light", startLight);
-  _lightToggle.addEventListener("change", (e) =>
-    document.body.classList.toggle("light", e.target.checked)
-  );
+  _lightToggle.addEventListener("change", (e) => {
+    document.body.classList.toggle("light", e.target.checked);
+    refreshScrollHints();
+  });
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -276,6 +312,11 @@ if (_fixSig) {
 }
 syncDependentControls();
 
+window.addEventListener("scroll", refreshScrollHints, { passive: true });
+_desktopScrollColumns.forEach((column) => {
+  column.addEventListener("scroll", refreshScrollHints, { passive: true });
+});
+
 /* ─────────────────────────────────────────────────────────────────────
  *  Window resize → recompute (the SVG measures its container width)
  * ───────────────────────────────────────────────────────────────────── */
@@ -291,3 +332,4 @@ window.addEventListener("resize", () => {
  * ───────────────────────────────────────────────────────────────────── */
 
 computeAll();
+refreshScrollHints();
