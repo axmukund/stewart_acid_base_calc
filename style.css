@@ -171,8 +171,19 @@ input[disabled] { background: rgba(255,255,255,0.01); color: var(--muted); curso
 
 
 .ion-label { white-space: normal; display: inline-block; font-weight: 600; flex: 1 1 auto; min-width: 0; }
-.ion-label sup, .ion-label sub,
-.gg-legend .item sup, label sup { font-size: .72em; line-height: 1; vertical-align: super; margin-left: 0.05ch; }
+.ion-label sup,
+.gg-legend .item sup {
+  font-size: .72em;
+  line-height: 1;
+  vertical-align: super;
+  margin-left: 0.05ch;
+}
+.ion-label sub,
+.gg-legend .item sub {
+  font-size: .72em;
+  line-height: 1;
+  vertical-align: sub;
+}
 .unit-select {
   margin-left: 0; background: transparent;
   border: 1px solid var(--input-border); color: inherit;
@@ -191,6 +202,17 @@ fieldset > label > input[type="text"] {
 select.unit-select option { color: inherit; }
 .checkbox-row { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 16px; padding-top: 6px; }
 .checkbox-row input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
+.checkbox-row label {
+  display: block;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+.checkbox-row label sup,
+.checkbox-row label sub {
+  line-height: 1;
+  margin-left: 0;
+}
 .small-note { font-size: 12px; color: var(--muted); margin-top: 6px; display: block; }
 .aux-input { padding-top: 6px; }
 
