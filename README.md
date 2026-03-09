@@ -61,15 +61,11 @@ $$
 $$
 
 $$
-\mathrm{iMg}_{est} = \operatorname{clamp}\!\left(0,\ \mathrm{Mg}_{total},\ 0.66 \times \mathrm{Mg}_{total} + 0.039\right)
+\mathrm{iMg}_{est} = \min\!\left(\mathrm{Mg}_{total}, \max\!\left(0, 0.66 \times \mathrm{Mg}_{total} + 0.039\right)\right)
 $$
 
 $$
-\mathrm{SID_a} =
-[\mathrm{Na^+}] + [\mathrm{K^+}] + 2[\mathrm{iCa^{2+}}] + 2[\mathrm{iMg^{2+}}]
-- [\mathrm{Cl^-}] - [\mathrm{Lactate^-}]
-+ \sum(\text{extra cation concentration} \times \text{charge})
-- \sum(\text{extra anion concentration} \times \text{charge})
+\mathrm{SID_a} = [\mathrm{Na^+}] + [\mathrm{K^+}] + 2[\mathrm{iCa^{2+}}] + 2[\mathrm{iMg^{2+}}] - [\mathrm{Cl^-}] - [\mathrm{Lactate^-}] + \sum (\text{extra cation concentration} \times \text{charge}) - \sum (\text{extra anion concentration} \times \text{charge})
 $$
 
 $$
@@ -127,11 +123,7 @@ This is an implementation heuristic rather than a canonical Stewart equation. Th
 Following unit conversion, the application computes the apparent strong ion difference as:
 
 $$
-\mathrm{SID_a} =
-[\mathrm{Na^+}] + [\mathrm{K^+}] + 2[\mathrm{iCa^{2+}}] + 2[\mathrm{iMg^{2+}}]
-- [\mathrm{Cl^-}] - [\mathrm{Lactate^-}]
-+ \sum \mathrm{ExtraCations}
-- \sum \mathrm{ExtraAnions}
+\mathrm{SID_a} = [\mathrm{Na^+}] + [\mathrm{K^+}] + 2[\mathrm{iCa^{2+}}] + 2[\mathrm{iMg^{2+}}] - [\mathrm{Cl^-}] - [\mathrm{Lactate^-}] + \sum \mathrm{ExtraCations} - \sum \mathrm{ExtraAnions}
 $$
 
 Each additional ion contributes:
