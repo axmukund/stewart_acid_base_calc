@@ -213,8 +213,8 @@ function renderGamblegram(vals) {
   const fSize = isMobile
     ? Math.max(12, Math.min(Math.round(legendFontPx * (W / 330)), 16))
     : Math.max(
-        Math.round(legendFontPx * 1.25),
-        Math.min(Math.round(legendFontPx * 1.32 * (W / 560)), 24)
+        Math.round(legendFontPx * 1.4),
+        Math.min(Math.round(legendFontPx * 1.48 * (W / 560)), 27)
       );
   const fSizeNum = fSize;
   const baseY  = padTop + H;
