@@ -70,6 +70,8 @@ h3 { margin: 0; }
 p.muted { color: var(--muted); margin: 6px 0 18px; }
 .note { color: var(--muted); margin-top: 10px; font-size: 13px; }
 footer { margin-top: 14px; color: var(--muted); font-size: 13px; }
+footer small { display: block; }
+footer small + small { margin-top: 6px; }
 
 /* ═══════════════════════════════════════════════════════════
    §4  Workspace layout

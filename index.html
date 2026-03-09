@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <!-- Mobile browser chrome colour (matches dark background) -->
     <meta name="theme-color" content="#071029" />
-    <title>Stewart / Figge — acid–base calculator</title>
+    <title>Physicochemical Acid-Base Calculator</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="stylesheet" href="./style.css?v=20260309" />
   </head>
@@ -14,8 +14,8 @@
          Main container
          ═══════════════════════════════════════════════════════════ -->
     <main class="container">
-      <h1>Stewart / Figge — acid–base calculator</h1>
-      <p class="muted">Static demo — not for clinical use. Reproduces inputs &amp; core outputs (SIDa, SIDe, SIG, AG). At physiologically normal values (albumin 42 g/L, pH 7.40, pCO₂ 40 mmHg, phosphate 1.0 mmol/L) the model gives SIG ≈ 5 mEq/L — this reflects real unmeasured anions in normal plasma (sulfate, acetate, citrate, etc.) that are absent from SIDa but present in SIDe. <strong>Normal SIG range: 0–6 mEq/L.</strong></p>
+      <h1>Physicochemical Acid-Base Calculator</h1>
+      <p class="muted">Static demo. Has not been validated and results might be inaccurate depending on the clinical context and your laboratory reference ranges. Uses the Stewart acid/base model with Figge-Fencl approximations. Inspired by <a href="https://medischesnippers.nl/stewart/" target="_blank" rel="noopener">medischesnippers.nl/stewart</a>.</p>
 
       <!-- ── Global toggles ── -->
       <div class="toolbar">
@@ -191,7 +191,7 @@
 
         <!-- ── Mobile-only header ── -->
         <div class="mobile-header" role="region" aria-label="Mobile summary" aria-hidden="false">
-          <div class="mobile-title">Stewart / Figge</div>
+          <div class="mobile-title">Physicochemical Acid-Base Calculator</div>
           <div class="mobile-summary">
             <div class="mh-item">SIDa <span id="mh-sida">—</span></div>
             <div class="mh-item">SIDe <span id="mh-side">—</span></div>
@@ -276,6 +276,7 @@
       <!-- ── Footer ── -->
       <footer>
         <small>This calculator has not been validated and results might be inaccurate depending on the clinical context and your laboratory reference ranges. Use at your own responsibility. Inspired by <a href="https://medischesnippers.nl/stewart/" target="_blank" rel="noopener">medischesnippers.nl/stewart</a>.</small>
+        <small>Many thanks to Graham Beck, Lisa Young, and Ashish Agrawal for thoughts and feedback. Find me on github for questions/comments.</small>
       </footer>
 
       <!-- Tooltip (positioned absolutely by JS) -->
