@@ -401,6 +401,58 @@ svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none
   line-height: 1.35;
 }
 
+@media (min-width: 1400px) {
+  .results.compact {
+    padding: 12px 14px 10px;
+  }
+  .results-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .result-card {
+    padding: 8px 10px;
+  }
+  .results.compact dt {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  .results.compact dd {
+    font-size: clamp(14px, 0.95vw, 18px);
+    margin-top: 3px;
+  }
+  .results.compact .ref-range {
+    margin-top: 2px;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+  .gg-info {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "unknown export"
+      "legend legend";
+    gap: 10px 16px;
+  }
+  .gg-unknown {
+    grid-area: unknown;
+    margin-top: 0;
+  }
+  .gg-legend {
+    grid-area: legend;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 16px;
+  }
+  .gg-legend .item {
+    min-width: 0;
+  }
+  #export-gg {
+    grid-area: export;
+    justify-self: end;
+    align-self: start;
+    margin-top: 0 !important;
+  }
+}
+
 @keyframes scrollHintFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(4px); }
