@@ -98,7 +98,7 @@ function makeAdditionalIonRow(definition) {
         "</select>" +
       "</label>" +
       '<label class="additional-ion-field">' +
-        "<span>Concentration (mmol/L)</span>" +
+        "<span>Conc. (mmol/L)</span>" +
         '<input type="number" min="0" step="0.1" class="additional-ion-value" placeholder="0.0">' +
       "</label>" +
     "</div>" +

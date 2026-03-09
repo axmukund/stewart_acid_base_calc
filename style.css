@@ -230,13 +230,15 @@ select.unit-select option { color: inherit; }
 }
 .additional-ions-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
 .additional-ion-row {
-  display: flex; align-items: flex-end; gap: 12px;
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;
   padding: 12px; border-radius: 8px;
   border: 1px solid var(--border); background: rgba(255,255,255,0.02);
 }
 .additional-ion-grid {
-  flex: 1; display: grid;
-  grid-template-columns: minmax(180px, 1.8fr) repeat(3, minmax(110px, 1fr));
+  flex: 1 1 640px;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(150px, 1.7fr) repeat(2, minmax(96px, 0.95fr)) minmax(128px, 1.1fr);
   gap: 10px;
 }
 .additional-ion-field {
@@ -265,7 +267,7 @@ select.unit-select option { color: inherit; }
 }
 .additional-ion-field select option { color: var(--fg); background: var(--card); }
 .additional-ions-actions { margin-top: 12px; display: flex; justify-content: flex-start; }
-.additional-ion-remove { flex-shrink: 0; }
+.additional-ion-remove { flex: 0 0 auto; align-self: flex-end; }
 
 /* ═══════════════════════════════════════════════════════════
    §6  Toolbar (global toggles)
