@@ -212,7 +212,10 @@ function renderGamblegram(vals) {
   const legendFontPx = parseFloat(rootStyle.getPropertyValue("--gg-legend-font-size")) || 15;
   const fSize = isMobile
     ? Math.max(12, Math.min(Math.round(legendFontPx * (W / 330)), 16))
-    : Math.max(legendFontPx, Math.min(Math.round(legendFontPx * (W / 560)), 19));
+    : Math.max(
+        Math.round(legendFontPx * 1.25),
+        Math.min(Math.round(legendFontPx * 1.32 * (W / 560)), 24)
+      );
   const fSizeNum = fSize;
   const baseY  = padTop + H;
 
