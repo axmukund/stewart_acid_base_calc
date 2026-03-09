@@ -1,30 +1,28 @@
 # Stewart / Figge Acid-Base Calculator
 
-A static single-page web app that implements a Stewart-style physicochemical acid-base analysis with Figge/Fencl weak-acid terms. The calculator is intentionally simple to run and inspect: no build step, no framework, and the core physiology lives in plain JavaScript under `js/`.
+A static browser-based application for physicochemical acid-base analysis based on the Stewart framework with Figge/Fencl weak-acid terms. The implementation is intentionally transparent: it requires no build step, uses no framework, and exposes the physiologic calculations directly in plain JavaScript under `js/`.
 
-> Disclaimer: this is an educational calculator. It uses a mix of primary literature, later clinical summaries, and one implementation-specific weak-acid model source for the albumin residue inventory. It has not been validated for clinical decision-making.
+> Disclaimer: this software is intended for educational and analytical use. It draws on primary literature, later clinical summaries, and one implementation-specific source for the detailed albumin residue model. It has not been validated for clinical decision support.
 
-## What the app does
+## Scope
 
-The app takes a small chemistry panel / blood-gas style input set and computes:
+The application accepts a compact chemistry-panel and blood-gas style input set and reports:
 
 - `SIDa` (apparent strong ion difference)
 - `SIDe` (effective strong ion difference)
 - `SIG` (strong ion gap)
 - `AG` (anion gap, using the potassium-including form)
-- a Gamblegram-style charge balance visualization
+- a Gamblegram-style visualization of charge balance
 
-The implemented model is not just the short bedside approximation. The core weak-acid terms are:
+The implementation extends beyond the common bedside approximation. Its principal weak-acid terms are:
 
-- bicarbonate from Henderson-Hasselbalch by default
-- albumin charge from a full Figge-Fencl v3.0 residue-by-residue macro-ion model
-- phosphate charge from the full triprotic equilibrium
-
-If someone wanted to reimplement the app from scratch, the sections below are the calculation pipeline to copy.
+- bicarbonate, derived by default from the Henderson-Hasselbalch equation
+- albumin charge, computed from a full Figge-Fencl v3.0 residue-level macro-ion model
+- phosphate charge, computed from the full triprotic equilibrium
 
 ## Quick start
 
-No build tools are needed. Serve the directory over HTTP:
+No build tooling is required. Serve the repository root over HTTP:
 
 ```bash
 python3 -m http.server 8000
@@ -34,29 +32,29 @@ Then open `http://localhost:8000`.
 
 ## Inputs and unit conventions
 
-The app internally works in charge equivalents for the SID sums.
+All strong-ion calculations are performed in charge equivalents.
 
 | Input | UI unit | Internal handling |
 | --- | --- | --- |
-| Na, K, Cl | mmol/L | Monovalent, so `mmol/L == mEq/L` |
-| Ionized Ca | mmol/L or mg/dL | Converted to mmol/L, then multiplied by 2 in SID sums |
-| Total Mg | mmol/L or mg/dL | Converted to mmol/L, then converted to estimated ionized Mg, then multiplied by 2 in SID sums |
-| Lactate | mmol/L or mg/dL | Converted to mmol/L, counted as monovalent anion |
-| Albumin | g/dL | Converted to g/L, then to mmol/L with MW `66.5 g/mmol` |
-| Phosphate | mmol/L or mg/dL | Converted to mmol/L, then multiplied by its pH-dependent average charge |
+| Na, K, Cl | mmol/L | Monovalent species, therefore `mmol/L == mEq/L` |
+| Ionized Ca | mmol/L or mg/dL | Converted to mmol/L, then multiplied by 2 in strong-ion sums |
+| Total Mg | mmol/L or mg/dL | Converted to mmol/L, converted to estimated ionized Mg, then multiplied by 2 in strong-ion sums |
+| Lactate | mmol/L or mg/dL | Converted to mmol/L and treated as a monovalent anion |
+| Albumin | g/dL | Converted to g/L, then to mmol/L using MW `66.5 g/mmol` |
+| Phosphate | mmol/L or mg/dL | Converted to mmol/L, then multiplied by its pH-dependent mean charge |
 | pH | unitless | Used in bicarbonate, albumin, and phosphate calculations |
-| pCO2 | mmHg | Used in bicarbonate calculation |
-| Additional ions | mmol/L plus integer charge | Counted as fully dissociated strong ions with contribution `concentration * charge` |
+| pCO2 | mmHg | Used in the bicarbonate calculation |
+| Additional ions | mmol/L plus integer charge | Treated as fully dissociated strong ions with contribution `concentration * charge` |
 
-Important implementation notes:
+Implementation notes:
 
 - The magnesium input is **total serum magnesium**, not measured ionized magnesium.
 - The displayed `AG` is `Na + K - Cl - HCO3`, so its reference range is higher than potassium-free AG conventions.
-- The current UI includes an `SBE` field, but `js/compute.js` does not use it in any calculation.
+- The current UI includes an `SBE` field, but `js/compute.js` does not currently incorporate it into any calculation.
 
 ## Core equations at a glance
 
-The app computes, in this order:
+The computational sequence is:
 
 $$
 \mathrm{HCO_3^-}_{gas} = 0.03 \times pCO_2 \times 10^{(pH - 6.1)}
@@ -86,13 +84,13 @@ $$
 \mathrm{AG} = [\mathrm{Na^+}] + [\mathrm{K^+}] - [\mathrm{Cl^-}] - [\mathrm{HCO_3^-}]
 $$
 
-The details that matter for reproducibility are the weak-acid terms `Alb-` and `Phos-`, plus the branch logic for `HCO3-`. Those are described below.
+For faithful reproduction of the implementation, the key details are the weak-acid terms `Alb-` and `Phos-`, together with the branch logic governing `HCO3-`.
 
-## Calculation pipeline
+## Calculation sequence
 
-### 1. Bicarbonate defaults to Henderson-Hasselbalch
+### 1. Bicarbonate calculation
 
-Unless the user explicitly asks the app to use a measured BMP bicarbonate, the calculator derives bicarbonate from pH and pCO2:
+Unless the user explicitly selects a measured BMP bicarbonate, the application derives bicarbonate from pH and pCO2:
 
 $$
 [\mathrm{HCO_3^-}] = \alpha \cdot pCO_2 \cdot 10^{(pH - pK')}
@@ -103,30 +101,30 @@ with:
 - `alpha = 0.03 mmol/L/mmHg`
 - `pK' = 6.1`
 
-So the exact code path is:
+The exact implemented expression is:
 
 ```text
 HCO3_gas = 0.03 * pCO2 * 10^(pH - 6.1)
 ```
 
-This is the standard clinical Henderson-Hasselbalch blood-gas rearrangement rather than a Stewart-specific identity. The constants correspond to the classical blood-serum `pK'` and CO2 solubility work cited in the reference list below. In Stewart language, bicarbonate is a dependent variable; the app still computes it this conventional way unless the user turns on fixed-SIG mode.
+This is the standard clinical Henderson-Hasselbalch rearrangement used in blood-gas analysis rather than a Stewart-specific identity. The constants correspond to the classical blood-serum `pK'` and CO2 solubility work cited below. In Stewart terms, bicarbonate remains a dependent variable; however, the default implementation derives it conventionally unless fixed-SIG mode is enabled.
 
-### 2. Magnesium is estimated before entering the strong-ion sum
+### 2. Magnesium handling
 
-The app does **not** ask for measured ionized magnesium. Instead it takes total serum magnesium and estimates ionized magnesium with a linear rule:
+The application does **not** request measured ionized magnesium. Instead, it accepts total serum magnesium and estimates ionized magnesium using a linear relation:
 
 ```text
 iMg_est = 0.66 * Mg_total + 0.039
 iMg = clamp(iMg_est, lower=0, upper=Mg_total)
 ```
 
-The clamp is there to avoid impossible values at extreme picker settings.
+The clamp prevents non-physical values at the extremes of the selectable range.
 
-This is an implementation heuristic, not a canonical Stewart equation. The physiological reason for the step is straightforward: the strong-ion sum should count the freely dissociated divalent cation contribution, but routine chemistry panels usually report total magnesium. If you are reproducing the app exactly, use the equation above. If you are building a more rigorous clinical implementation and have measured ionized magnesium, you would normally use measured `iMg` directly instead.
+This is an implementation heuristic rather than a canonical Stewart equation. The rationale is that the strong-ion sum should reflect the freely dissociated divalent cation contribution, whereas routine chemistry panels commonly report only total magnesium. Reproduction of the present implementation therefore requires the relation above; a separate implementation with direct ionized magnesium measurements would ordinarily substitute measured `iMg` directly.
 
-### 3. Apparent SIDa is a charge-equivalent sum
+### 3. Apparent strong ion difference (`SIDa`)
 
-After unit conversion, the app computes apparent strong ion difference as:
+Following unit conversion, the application computes the apparent strong ion difference as:
 
 $$
 \mathrm{SID_a} =
@@ -136,31 +134,31 @@ $$
 - \sum \mathrm{ExtraAnions}
 $$
 
-where each additional ion contributes:
+Each additional ion contributes:
 
 ```text
 segment_value = concentration_mmol_per_L * integer_charge
 ```
 
-That means:
+Examples:
 
 - sulfate at `2 mmol/L` and charge `2` contributes `4 mEq/L` to the anion side
 - lithium at `1 mmol/L` and charge `1` contributes `1 mEq/L` to the cation side
 - citrate at `1 mmol/L` and charge `3` contributes `3 mEq/L` to the anion side
 
-This follows the Stewart framing directly: strong ions are treated as fully dissociated species whose concentrations constrain electroneutrality and therefore the dependent acid-base variables.
+This follows the Stewart framework directly: strong ions are treated as fully dissociated species whose concentrations constrain electroneutrality and, consequently, the dependent acid-base variables.
 
-### 4. Albumin uses the full Figge-Fencl v3.0 macro-ion model
+### 4. Albumin charge (`Alb-`)
 
-This is the most implementation-specific part of the calculator.
+This is the most implementation-specific component of the model.
 
-The app converts albumin from `g/dL` to `g/L`, then to `mmol/L` using a molecular weight of `66.5 kDa`:
+The application converts albumin from `g/dL` to `g/L`, then to `mmol/L` using a molecular weight of `66.5 kDa`:
 
 $$
 [\mathrm{Alb}]_{mmol/L} = \frac{[\mathrm{Alb}]_{g/L}}{66.5}
 $$
 
-It then computes the net charge per albumin molecule from protonated basic groups and deprotonated acidic groups. The final reported `Alb-` is the magnitude of albumin's net negative charge in `mEq/L`, so the code returns the negative of the molecular net charge:
+The implementation then computes the net charge per albumin molecule from protonated basic groups and deprotonated acidic groups. The reported `Alb-` corresponds to the magnitude of albumin's net negative charge in `mEq/L`, so the code returns the negative of the molecular net charge:
 
 $$
 \mathrm{Alb^-} = -[\mathrm{Alb}]_{mmol/L} \times Z_{albumin}
@@ -172,14 +170,14 @@ where `Z_albumin` is:
 Z_albumin = His + Lys + Arg + NH2 + alphaCOOH + AspGlu + Cys + Tyr
 ```
 
-The protonation/deprotonation templates are:
+The site-specific protonation/deprotonation templates are:
 
 - for basic sites: `+1 / (1 + 10^(pH - pKa))`
 - for acidic sites: `-1 / (1 + 10^(pKa - pH))`
 
-#### 4a. N to B conformational shift
+#### 4a. N to B conformational transition
 
-The code applies the Figge-Fencl v3.0 N to B transition to five domain-1 histidines:
+The implementation applies the Figge-Fencl v3.0 N to B conformational transition to five domain-1 histidines:
 
 $$
 NB = 0.4 \times \left(1 - \frac{1}{1 + 10^{(pH - 6.9)}}\right)
@@ -191,9 +189,9 @@ For histidines 1 through 5, the effective pKa becomes:
 pKa_effective = pKa_listed - NB
 ```
 
-#### 4b. Exact residue inventory used by the app
+#### 4b. Residue inventory used by the implementation
 
-To reproduce the code exactly, use the following residue counts and pKa values.
+Faithful reproduction requires the following residue counts and pKa values.
 
 Histidines:
 
@@ -221,7 +219,7 @@ Acidic groups:
 - 1 cysteine thiol at `pKa 8.5`
 - 18 tyrosines at `pKa 11.7`
 
-#### 4c. Exact albumin equation as implemented
+#### 4c. Implemented albumin equation
 
 In code form, the model is:
 
@@ -254,11 +252,11 @@ Z_albumin = His + Lys + Arg + NH2 + alphaCOOH + AspGlu + Cys + Tyr
 Alb_minus = -Alb_mmol * Z_albumin
 ```
 
-At the code comment's reference point, `Alb = 4.0 g/dL` and `pH = 7.40` gives `Alb- ≈ 11.2 mEq/L`.
+As noted in the source comments, `Alb = 4.0 g/dL` and `pH = 7.40` yields `Alb- ≈ 11.2 mEq/L`.
 
-### 5. Phosphate uses the full triprotic equilibrium
+### 5. Phosphate charge (`Phos-`)
 
-The app does not use the bedside linear approximation for phosphate charge. It uses the full average-charge expression for inorganic phosphate:
+The implementation does not use a linear bedside approximation for phosphate charge. Instead, it uses the full mean-charge expression for inorganic phosphate:
 
 $$
 \mathrm{H_3PO_4} \rightleftharpoons \mathrm{H_2PO_4^-} \rightleftharpoons \mathrm{HPO_4^{2-}} \rightleftharpoons \mathrm{PO_4^{3-}}
@@ -274,7 +272,7 @@ with:
 - `K3 = 10^-pKa3`
 - `H = 10^-pH`
 
-The average negative charge per mmol phosphate is:
+The mean negative charge per mmol of total phosphate is:
 
 $$
 z =
@@ -282,7 +280,7 @@ z =
 {H^3 + K_1H^2 + K_1K_2H + K_1K_2K_3}
 $$
 
-and the phosphate contribution is:
+The resulting phosphate contribution is:
 
 $$
 \mathrm{Phos^-} = [\mathrm{Phosphate}] \times z
@@ -301,19 +299,19 @@ z = (K1*H^2 + 2*K1*K2*H + 3*K1*K2*K3) / d
 Phos_minus = Phosphate_total_mmol_per_L * z
 ```
 
-At `pH = 7.40` and phosphate `1.0 mmol/L`, the code comment gives `Phos- ≈ 1.85 mEq/L`.
+At `pH = 7.40` and phosphate `1.0 mmol/L`, the source comment gives `Phos- ≈ 1.85 mEq/L`.
 
-### 6. SIDe is bicarbonate plus weak-acid anions
+### 6. Effective strong ion difference (`SIDe`)
 
-Once `HCO3-`, `Alb-`, and `Phos-` are known, effective SID is:
+Once `HCO3-`, `Alb-`, and `Phos-` have been established, the effective strong ion difference is:
 
 $$
 \mathrm{SID_e} = [\mathrm{HCO_3^-}] + \mathrm{Alb^-} + \mathrm{Phos^-}
 $$
 
-This is the standard bedside Stewart/Figge structure: bicarbonate plus the major measured weak-acid contributions. The app does not separately model every weak acid in plasma, so anything not captured here ends up in the gap term.
+This is the conventional Stewart/Figge form: bicarbonate plus the principal measured weak-acid contributions. The implementation does not model every plasma weak acid explicitly; any residual charge not captured here is absorbed into the gap term.
 
-### 7. SIG is the residual unmeasured charge
+### 7. Strong ion gap (`SIG`)
 
 The strong ion gap is:
 
@@ -321,42 +319,42 @@ $$
 \mathrm{SIG} = \mathrm{SID_a} - \mathrm{SID_e}
 $$
 
-In the app, this is the "unknown" or unmeasured remainder after accounting for:
+Within this implementation, `SIG` is the residual unmeasured charge after accounting for:
 
 - strong measured ions
 - albumin
 - phosphate
 - bicarbonate
-- any user-added extra strong ions
+- any user-specified additional strong ions
 
-### 8. Optional fixed-SIG mode solves bicarbonate backward
+### 8. Optional fixed-SIG mode
 
-If the user enables **Fix SIG and make HCO3- the dependent variable**, the app freezes `SIG` at a target value and solves:
+If the user enables **Fix SIG and make HCO3- the dependent variable**, the implementation holds `SIG` at a target value and solves:
 
 $$
 [\mathrm{HCO_3^-}] = \mathrm{SID_a} - \mathrm{SIG}_{target} - \mathrm{Alb^-} - \mathrm{Phos^-}
 $$
 
-That branch is important conceptually because it reflects the Stewart view more directly: once strong ions and weak acids are fixed, bicarbonate is not independent.
+This branch is conceptually important because it reflects the Stewart formulation more directly: once strong ions and weak acids are specified, bicarbonate is not independent.
 
-Implementation detail:
+Implementation details:
 
-- if fixed-SIG mode is enabled and no target has been entered yet, the app first captures the currently calculated SIG and uses that as the initial target
+- if fixed-SIG mode is enabled and no target has yet been entered, the application captures the current calculated `SIG` and uses it as the initial target
 - after solving the new `HCO3-`, it recomputes `SIDe` and `SIG`
 
-### 9. Anion gap is reported as a conventional cross-check
+### 9. Anion gap (`AG`)
 
-The app also shows:
+The application also reports:
 
 $$
 \mathrm{AG} = [\mathrm{Na^+}] + [\mathrm{K^+}] - [\mathrm{Cl^-}] - [\mathrm{HCO_3^-}]
 $$
 
-This is not the Stewart variable of interest, but it is a familiar bedside cross-check. Because potassium is included, the README and UI use a higher "typical" range than potassium-free AG conventions.
+This is not the primary Stewart variable of interest, but it remains a familiar clinical cross-check. Because potassium is included, the README and UI appropriately use a higher typical range than potassium-excluding AG conventions.
 
 ## Exact reproduction recipe
 
-If you want to reproduce the app's physiologic logic outside the browser, this is the shortest faithful algorithm:
+The following pseudocode reproduces the implemented physiologic logic outside the browser environment:
 
 ```text
 Inputs:
@@ -399,32 +397,32 @@ Then:
   AG   = Na + K - Cl - HCO3
 ```
 
-If you implement the exact albumin residue inventory and the phosphate constants above, you will reproduce the app's core acid-base outputs.
+Implementation of the exact albumin residue inventory and phosphate constants above is sufficient to reproduce the core acid-base outputs generated by the application.
 
-## Where the formulas come from
+## Physiologic and literature basis
 
 ### Stewart framework
 
-Peter Stewart's quantitative acid-base framework treats pH and bicarbonate as dependent variables governed by three independent variable groups: strong ions, total weak acids, and CO2. That is the conceptual reason the app is organized around `SIDa`, `SIDe`, and `SIG`, not just bicarbonate and AG.
+Peter Stewart's quantitative acid-base framework treats pH and bicarbonate as dependent variables governed by three independent variable groups: strong ions, total weak acids, and CO2. That framework is the reason the application is organized around `SIDa`, `SIDe`, and `SIG` rather than solely around bicarbonate and `AG`.
 
 ### Figge/Fencl weak-acid refinements
 
-The original Stewart framework is general, but clinicians need tractable plasma weak-acid terms. Figge, Rossing, and Fencl derived quantitative albumin and phosphate contributions, then Figge and colleagues later refined the serum protein treatment further. The app's simple bedside outputs (`SIDe`, `SIG`) are Stewart/Figge/Fencl quantities even though the actual albumin term implemented here is more detailed than the compact bedside linear approximation.
+The Stewart framework is general; clinical application requires tractable plasma weak-acid terms. Figge, Rossing, and Fencl derived quantitative albumin and phosphate contributions, and later work further refined the treatment of serum proteins. The variables `SIDe` and `SIG` used here are therefore Stewart/Figge/Fencl quantities, even though the albumin term implemented in this application is more detailed than the compact clinical linear approximation.
 
 ### Full albumin model provenance
 
-The exact residue-by-residue albumin model in `js/physiology.js` matches the Figge-Fencl v3.0 model description rather than only the short clinical linear approximation. That source is important because it explains:
+The residue-level albumin model in `js/physiology.js` follows the Figge-Fencl v3.0 model description rather than only the short clinical linear approximation. That source is important because it documents:
 
 - the 16 explicit histidine sites
 - the nonuniform lysine subgroups
 - the N to B conformational transition
 - the exact residue inventory used in the code
 
-This is the least conventional source in the README. It is an author-maintained model page, not a peer-reviewed journal article, so it should be read as **implementation provenance** rather than as the sole evidentiary basis for Stewart acid-base physiology. The underlying Stewart/Figge/Fencl clinical framework is peer-reviewed; the precise v3.0 residue inventory is documented on that model page and reproduced in the code.
+This is the least conventional source cited in the README. It is an author-maintained model page rather than a peer-reviewed journal article and should therefore be interpreted as **implementation provenance** rather than as the sole evidentiary basis for Stewart acid-base physiology. The underlying Stewart/Figge/Fencl framework is peer-reviewed; the precise v3.0 residue inventory is documented on that model page and reproduced in the code.
 
 ### Phosphate constants
 
-The phosphate pKa values are old, but they are the constants explicitly used in the implementation and reproduced in the Figge model materials. Because the app needs exact constants to be reproducible, those fixed values matter more here than a later bedside simplification would.
+The phosphate pKa values are historical, but they are the constants explicitly used in the implementation and reproduced in the Figge model materials. Because exact reproducibility requires fixed constants, those values are more relevant here than a later simplified bedside approximation.
 
 ## References
 
@@ -444,13 +442,13 @@ Implementation-specific and supporting sources:
 9. Figge J, Bellomo R, Egi M. *Quantitative relationships among plasma lactate, inorganic phosphorus, albumin, unmeasured anions and the anion gap in lactic acidosis.* J Crit Care. 2018;44:101-110. PubMed: <https://pubmed.ncbi.nlm.nih.gov/29128625/>
 10. Longstreet D, Vink R. *Does the ionized magnesium concentration reflect the total serum magnesium concentration?* Clin Chem. 2009;55(9):1685-1686. PubMed: <https://pubmed.ncbi.nlm.nih.gov/19608851/>
 
-How to interpret the source mix:
+Interpretation of the source base:
 
-- References 1-5 are the main peer-reviewed physiologic and clinical basis for the Stewart/Figge/Fencl variables used here.
-- References 6-7 are the historical physicochemical sources behind the `pK' = 6.1` and `alpha = 0.03` style Henderson-Hasselbalch constants used by the implementation.
-- Reference 8 is the key source for the **exact** v3.0 albumin residue inventory, N to B transition, and phosphate constants that the code reproduces; it is useful for implementation fidelity but should not be treated as equivalent in weight to a peer-reviewed trial or review.
-- Reference 9 bridges the implementation constants to later peer-reviewed Figge work.
-- Reference 10 supports the general idea that total and ionized magnesium correlate, but the exact linear estimator in this app should still be treated as a pragmatic implementation choice.
+- References 1-5 provide the principal peer-reviewed physiologic and clinical basis for the Stewart/Figge/Fencl variables used here.
+- References 6-7 provide the historical physicochemical basis for the `pK' = 6.1` and `alpha = 0.03` Henderson-Hasselbalch constants used in the implementation.
+- Reference 8 provides the key implementation source for the **exact** v3.0 albumin residue inventory, N to B transition, and phosphate constants reproduced by the code; it is valuable for implementation fidelity but should not be weighted equivalently to a peer-reviewed clinical review or trial.
+- Reference 9 connects those implementation constants to later peer-reviewed Figge work.
+- Reference 10 supports the general premise that total and ionized magnesium correlate, although the exact linear estimator used here remains a pragmatic implementation choice.
 
 ## Project structure
 
@@ -472,7 +470,7 @@ How to interpret the source mix:
 └── README.md
 ```
 
-If you only want the physiologic core, start with `js/physiology.js` and `js/compute.js`.
+For the physiologic core, begin with `js/physiology.js` and `js/compute.js`.
 
 ## License
 
