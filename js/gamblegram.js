@@ -210,13 +210,15 @@ function renderGamblegram(vals) {
   // Use separate scaling for mobile vs desktop so labels remain legible
   // at large desktop sizes without becoming oversized on narrow screens.
   const legendFontPx = parseFloat(rootStyle.getPropertyValue("--gg-legend-font-size")) || 15;
-  const fSize = isMobile
+  const labelFontPx = parseFloat(rootStyle.getPropertyValue("--gg-label-font-size")) || 20;
+  const resultLabelEl = document.querySelector(".results.compact dd");
+  const resultFontPx = resultLabelEl ? parseFloat(getComputedStyle(resultLabelEl).fontSize) : null;
+
+  const computedLabelFontSize = isMobile
     ? Math.max(12, Math.min(Math.round(legendFontPx * (W / 330)), 16))
-    : Math.max(
-        Math.round(legendFontPx * 1.4),
-        Math.min(Math.round(legendFontPx * 1.48 * (W / 560)), 27)
-      );
-  const fSizeNum = fSize;
+    : Math.max(72, Math.round((resultFontPx || labelFontPx) * 2));
+
+  const fSizeNum = computedLabelFontSize;
   const baseY  = padTop + H;
 
   const sum      = (a) => a.reduce((s, x) => s + (x.v || 0), 0);
@@ -261,7 +263,7 @@ function renderGamblegram(vals) {
   const guideUnderlay = rootStyle.getPropertyValue("--gg-guide-underlay").trim() || "#020617";
 
   function layoutLabelYs(targets) {
-    const labelHeight = fSizeNum * 1.2;
+    const labelHeight = fSizeNum * (isMobile ? 2.2 : 1.2);
     const half        = labelHeight / 2;
     const top         = padTop + half;
     const bottom      = baseY - half;
@@ -368,10 +370,40 @@ function renderGamblegram(vals) {
     text.classList.add("gg-name");
     text.setAttribute("x",                lx);
     text.setAttribute("y",                labelY);
-    text.setAttribute("dominant-baseline","middle");
+    text.setAttribute("dominant-baseline", "middle");
     text.setAttribute("text-anchor",      anchor);
-    text.setAttribute("font-size",        fSize);
-    text.textContent = svgLabel(item) + " " + item.v.toFixed(2);
+    text.setAttribute("font-size",        `${fSizeNum}px`);
+
+    if (isMobile) {
+      const tspanLabel = document.createElementNS(NS, "tspan");
+      tspanLabel.setAttribute("x", lx);
+      tspanLabel.setAttribute("dy", "0em");
+      tspanLabel.textContent = svgLabel(item);
+
+      const tspanValue = document.createElementNS(NS, "tspan");
+      tspanValue.setAttribute("x", lx);
+      tspanValue.setAttribute("dy", "1.2em");
+      tspanValue.classList.add("value");
+      const indent = isNaN(fSizeNum) ? 6 : Math.round(fSizeNum * 0.18);
+      if (anchor === "end") tspanValue.setAttribute("dx", `-${indent}`);
+      else tspanValue.setAttribute("dx", `${indent}`);
+      tspanValue.textContent = item.v.toFixed(2);
+
+      text.appendChild(tspanLabel);
+      text.appendChild(tspanValue);
+    } else {
+      const tspanLabel = document.createElementNS(NS, "tspan");
+      tspanLabel.textContent = svgLabel(item);
+
+      const tspanValue = document.createElementNS(NS, "tspan");
+      tspanValue.classList.add("value");
+      tspanValue.setAttribute("dx", "0.35em");
+      tspanValue.textContent = item.v.toFixed(2);
+
+      text.appendChild(tspanLabel);
+      text.appendChild(tspanValue);
+    }
+
     svg.appendChild(text);
 
     anim.push({
@@ -383,7 +415,7 @@ function renderGamblegram(vals) {
     });
   }
 
-  const labelPad = Math.max(12, Math.round(fSize * 0.85));
+  const labelPad = Math.max(12, Math.round(fSizeNum * 0.85));
   cT.forEach((t, i) => addSeg(t, leftX,  leftX - labelPad,         "end",   leftLabelYs.get(i)));
   aT.forEach((t, i) => addSeg(t, rightX, rightX + barW + labelPad, "start", rightLabelYs.get(i)));
 

@@ -16,6 +16,7 @@
   --gg-guide: rgba(230,238,248,0.96);
   --gg-guide-underlay: rgba(2,6,23,0.92);
   --gg-legend-font-size: 15px;
+  --gg-label-font-size: clamp(18px, 2.1vw, 32px);
   --scroll-hint-bg: rgba(7,16,41,0.82);
   --scroll-hint-fg: rgba(230,238,248,0.9);
   --scroll-hint-shadow: rgba(2,6,23,0.34);
@@ -443,7 +444,18 @@ body.light .result-meta.confidence-low { color: #b91c1c; }
 }
 svg#gg-svg { width: 100%; height: auto; display: block; transition: opacity 240ms ease; touch-action: none; }
 svg text.gg-val { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
-svg text.gg-name { fill: var(--gg-label); font-weight: 400; pointer-events: none; }
+svg text.gg-name {
+  fill: var(--gg-label);
+  font-weight: 400;
+  pointer-events: none;
+  font-size: var(--gg-label-font-size);
+  line-height: 1.2;
+}
+svg text.gg-name tspan {
+  font-size: inherit;
+  line-height: 1.2;
+}
+svg text.gg-name tspan.value { font-weight: 700; }
 .gg-info {
   display: grid;
   grid-template-columns: minmax(0, 180px) minmax(0, 1fr) auto;
